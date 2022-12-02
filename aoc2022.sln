@@ -9,6 +9,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "day01", "day01\day01.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "day02", "day02\day02.vcxproj", "{A7AA529F-9EEB-476E-A3E7-69A036806075}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{299204F8-3B96-4EAD-B612-F68AA0B71694}"
+	ProjectSection(SolutionItems) = preProject
+		include\getdata.h = include\getdata.h
+		include\print.h = include\print.h
+		include\thrower.h = include\thrower.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
