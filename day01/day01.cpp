@@ -16,7 +16,7 @@ try
 {
     std::vector<int>    elves(1);
 
-    for(auto const &line : getData("day01.txt"))
+    for(auto const &line : getData())
     {
         if(line.empty())
         {

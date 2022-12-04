@@ -9,14 +9,9 @@
 #include <ranges>
 #include <tuple>
 
-
-
 std::istringstream testInput{
 R"(
 )"};
-
-
-
 
 using Range=std::pair<int,int>;             // start and end (inclusive) of sections to clean
 using Job  =std::pair<Range,Range>;         
@@ -25,7 +20,7 @@ auto getJobs()
 {
     std::vector<Job>  jobs;
 
-    for(auto const &line : getData("day04.txt"))
+    for(auto const &line : getData())
     {
         auto parse=[](std::string_view range)
         {
@@ -44,7 +39,7 @@ auto getJobs()
 int main()
 try
 {
-    print("{}\n",__FILE__);
+    
 
     std::vector<Job>  const jobs{getJobs()};
 

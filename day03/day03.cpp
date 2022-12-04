@@ -44,10 +44,9 @@ std::set<char> intersection(std::set<char> const &one,std::set<char> const &two)
 int main()
 try
 {
-    print("{}\n",__FILE__);
 
 
-    auto rucksacks = getData("day03.txt");
+    auto rucksacks = getData();
 
     int part1Total{};    // common item between 1st and 2nd half of each line
 

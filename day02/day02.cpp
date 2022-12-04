@@ -53,13 +53,10 @@ int part2Score(char them, char desiredResult)       // them : ABC = RPS   desire
 int main()
 try
 {
-    print("{}\n",__FILE__);
-
-
     int part1Total{};
     int part2Total{};
 
-    for(auto const &line : getData("day02.txt"))
+    for(auto const &line : getData())
     {
         part1Total+=part1Score(line[0],line[2]);
         part2Total+=part2Score(line[0],line[2]);

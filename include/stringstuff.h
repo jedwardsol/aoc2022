@@ -1,6 +1,10 @@
 #include <string_view>
 #include <tuple>
 #include <charconv>
+#include <string>
+#include "thrower.h"
+
+using namespace std::literals;
 
 auto split(std::string_view  string, char delimiter)
 {
@@ -10,7 +14,13 @@ auto split(std::string_view  string, char delimiter)
 
 int stoi(std::string_view  string)
 {
-    int res;
-    std::from_chars(string.data(),string.data()+string.size(),res);
-    return res;
+    int i;
+    auto result = std::from_chars(string.data(),string.data()+string.size(),i);
+
+    if(result.ec != std::errc{})
+    {
+        throw_runtime_error("stoi from " + std::string{string});
+    }
+
+    return i;
 }

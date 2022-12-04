@@ -17,12 +17,9 @@ R"(
 int main()
 try
 {
-    print("{}\n",__FILE__);
-
-    for(auto const &line : getData("day_.txt"))
+    for(auto const &line : getData())
     {
     }
-
 }
 catch(std::exception const &e)
 {
