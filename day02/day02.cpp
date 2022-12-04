@@ -6,11 +6,6 @@
 #include <string>
 #include <sstream>
 
-std::istringstream testInput{
-R"(A Y
-B X
-C Z
-)"};
 
 
 
@@ -69,3 +64,12 @@ catch(std::exception const &e)
 {
     print("{}",e.what());
 }
+
+
+
+// --------------------------
+std::istringstream testInput{
+R"(A Y
+B X
+C Z
+)"};

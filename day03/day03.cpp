@@ -9,14 +9,6 @@
 #include <cctype>
 #include <ranges>
 
-std::istringstream testInput{
-R"(vJrwpWtwJgWrhcsFMMfFFhFp
-jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
-PmmdzqPrVvPwwTWBwg
-wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
-ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw
-)"};
 
 
 auto getScore(char c)
@@ -96,3 +88,15 @@ catch(std::exception const &e)
 {
     print("{}",e.what());
 }
+
+
+
+// --------------------------
+std::istringstream testInput{
+R"(vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw
+)"};

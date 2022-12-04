@@ -9,10 +9,6 @@
 #include <ranges>
 #include <tuple>
 
-std::istringstream testInput{
-R"(
-)"};
-
 using Range=std::pair<int,int>;             // start and end (inclusive) of sections to clean
 using Job  =std::pair<Range,Range>;         
 
@@ -39,8 +35,6 @@ auto getJobs()
 int main()
 try
 {
-    
-
     std::vector<Job>  const jobs{getJobs()};
 
 // ---
@@ -74,3 +68,12 @@ catch(std::exception const &e)
 {
     print("{}",e.what());
 }
+
+
+
+
+// --------------------------
+std::istringstream testInput{
+R"(
+)"};
+

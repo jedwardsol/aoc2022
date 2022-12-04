@@ -7,13 +7,6 @@
 #include <sstream>
 
 
-std::istringstream testInput{
-R"(
-)"};
-
-
-
-
 int main()
 try
 {
@@ -25,3 +18,10 @@ catch(std::exception const &e)
 {
     print("{}",e.what());
 }
+
+
+
+// --------------------------
+std::istringstream testInput{
+R"(
+)"};

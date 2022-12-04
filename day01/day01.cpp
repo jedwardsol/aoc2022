@@ -5,9 +5,6 @@
 #include <vector>
 #include <algorithm>
 
-std::istringstream testInput{
-R"(
-)"};
 
 
 
@@ -39,3 +36,10 @@ catch(std::exception const &e)
 {
     print("{}",e.what());
 }
+
+
+
+// --------------------------
+std::istringstream testInput{
+R"(
+)"};
