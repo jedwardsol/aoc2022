@@ -4,8 +4,6 @@
 #include <string>
 #include "thrower.h"
 
-using namespace std::literals;
-
 auto split(std::string_view  string, char delimiter)
 {
     auto pos = string.find(delimiter);
