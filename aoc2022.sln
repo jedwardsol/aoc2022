@@ -13,10 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		include\getdata.h = include\getdata.h
 		include\print.h = include\print.h
+		include\stringstuff.h = include\stringstuff.h
 		include\thrower.h = include\thrower.h
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "day03", "day03\day03.vcxproj", "{73981D1C-0998-49FD-BE2E-96891F08B0F2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "day04", "day04\day04.vcxproj", "{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +61,14 @@ Global
 		{73981D1C-0998-49FD-BE2E-96891F08B0F2}.Release|x64.Build.0 = Release|x64
 		{73981D1C-0998-49FD-BE2E-96891F08B0F2}.Release|x86.ActiveCfg = Release|Win32
 		{73981D1C-0998-49FD-BE2E-96891F08B0F2}.Release|x86.Build.0 = Release|Win32
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Debug|x64.ActiveCfg = Debug|x64
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Debug|x64.Build.0 = Debug|x64
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Debug|x86.ActiveCfg = Debug|Win32
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Debug|x86.Build.0 = Debug|Win32
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Release|x64.ActiveCfg = Release|x64
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Release|x64.Build.0 = Release|x64
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Release|x86.ActiveCfg = Release|Win32
+		{B1529569-D0A2-4DEE-BA52-D22E9D7A0FB8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
