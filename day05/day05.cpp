@@ -1,13 +1,14 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stringstuff.h"
+
 #include <fstream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <stack>
 #include <array>
-#include <regex>
 
 // 1st 8 lines of input file
 std::vector<std::string> stackInput=
@@ -62,20 +63,12 @@ try
 
     std::vector<Move> moves;
 
-    // move 8 from 3 to 2
-    std::regex  regex{R"(move (\d+) from (\d+) to (\d+))"};
 
     for(auto const &line : getData())
     {
-        std::smatch matches;
-        std::regex_match(line, matches, regex);
+        auto numbers = numbersFromRegex(line,R"(move (\d+) from (\d+) to (\d+))",3);     // move 8 from 3 to 2
 
-        if(matches.size() != 4)
-        {
-            throw_runtime_error("no match " + line);
-        }
-
-        moves.emplace_back(std::stoi(matches[1]),std::stoi(matches[2]) -1, std::stoi(matches[3]) -1);
+        moves.emplace_back(numbers[0],numbers[1]-1, numbers[2]-1);
     }
 
 
