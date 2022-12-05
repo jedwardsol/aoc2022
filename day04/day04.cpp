@@ -12,20 +12,19 @@
 using Range=std::pair<int,int>;             // start and end (inclusive) of sections to clean .  assumed to be ordered
 using Job  =std::pair<Range,Range>;         
 
+
 auto getJobs()
 {
     std::vector<Job>  jobs;
 
     for(auto const &line : getData())
     {
-        auto parse=[](std::string_view range)
-        {
-            auto numbers = split(range,'-');
-            return std::make_pair(stoi(numbers.first),stoi(numbers.second));
-        };
+        auto numbers = numbersFromRegex(line, R"((\d+)-(\d+),(\d+)-(\d+))",4);                  //61-78,61-77
 
-        auto halves=split(line,',');
-        jobs.emplace_back( parse(halves.first),parse(halves.second));
+        auto first  = std::make_pair(numbers[0],numbers[1]);
+        auto second = std::make_pair(numbers[2],numbers[3]);
+
+        jobs.emplace_back( first,second);
     }
 
     return jobs;

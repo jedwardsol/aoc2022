@@ -37,8 +37,8 @@ auto readStacks()
         
         while( (pos=line.find('[',pos)) != line.npos)
         {
-            auto stack = pos/4;
-            pos++;
+            auto stack = pos/4;                // columns are 4 characters wide
+            pos++;                             // [X]  character is offset 1 in the column.   and start the next search for [ at the right place
             auto chr   = line[pos];
 
             stacks[stack].push(chr);
@@ -62,7 +62,6 @@ try
     };
 
     std::vector<Move> moves;
-
 
     for(auto const &line : getData())
     {
