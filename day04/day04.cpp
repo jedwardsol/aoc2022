@@ -9,7 +9,7 @@
 #include <ranges>
 #include <tuple>
 
-using Range=std::pair<int,int>;             // start and end (inclusive) of sections to clean
+using Range=std::pair<int,int>;             // start and end (inclusive) of sections to clean .  assumed to be ordered
 using Job  =std::pair<Range,Range>;         
 
 auto getJobs()
