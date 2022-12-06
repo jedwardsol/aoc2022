@@ -17,7 +17,7 @@ auto getJobs()
 {
     std::vector<Job>  jobs;
 
-    for(auto const &line : getData())
+    for(auto const &line : getDataLines())
     {
         auto numbers = numbersFromRegex(line, R"((\d+)-(\d+),(\d+)-(\d+))",4);                  //61-78,61-77
 

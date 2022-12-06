@@ -13,7 +13,7 @@ try
 {
     std::vector<int>    elves(1);
 
-    for(auto const &line : getData())
+    for(auto const &line : getDataLines())
     {
         if(line.empty())
         {

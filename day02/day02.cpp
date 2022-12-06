@@ -51,7 +51,7 @@ try
     int part1Total{};
     int part2Total{};
 
-    for(auto const &line : getData())
+    for(auto const &line : getDataLines())
     {
         part1Total+=part1Score(line[0],line[2]);
         part2Total+=part2Score(line[0],line[2]);

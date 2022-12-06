@@ -10,7 +10,7 @@
 int main()
 try
 {
-    for(auto const &line : getData())
+    for(auto const &line : getDataLines())
     {
     }
 }

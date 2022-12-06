@@ -63,7 +63,7 @@ try
 
     std::vector<Move> moves;
 
-    for(auto const &line : getData())
+    for(auto const &line : getDataLines())
     {
         auto numbers = numbersFromRegex(line,R"(move (\d+) from (\d+) to (\d+))",3);     // move 8 from 3 to 2
 

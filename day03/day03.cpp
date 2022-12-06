@@ -38,7 +38,7 @@ try
 {
 
 
-    auto rucksacks = getData();
+    auto rucksacks = getDataLines();
 
     int part1Total{};    // common item between 1st and 2nd half of each line
 

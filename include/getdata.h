@@ -8,14 +8,15 @@
 #include <source_location>
 namespace fs=std::filesystem;
 
-extern std::istringstream testInput;
 
 
 struct TestData{};
 
 
-auto getData(TestData)
+auto getDataLines(TestData)
 {
+    extern std::istringstream testInput;
+
     std::vector<std::string>    data;
     std::string line;
 
@@ -27,7 +28,17 @@ auto getData(TestData)
     return data;
 }
 
-auto getData(std::source_location const &sourceLocation = std::source_location::current())
+
+auto getDataLine(TestData)
+{
+    extern std::istringstream testInput;
+
+    return testInput.str();
+}
+
+
+
+auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
 {
     std::vector<std::string>    data;
     std::string line;
@@ -47,5 +58,24 @@ auto getData(std::source_location const &sourceLocation = std::source_location::
     }
 
     return data;
+}
+
+
+auto getDataLine(std::source_location const &sourceLocation = std::source_location::current())
+{
+    std::string line;
+
+    auto dataFilename = fs::path{sourceLocation.file_name()}.replace_extension(".txt");
+
+    std::ifstream file{dataFilename};
+
+    if(!file)
+    {
+        throw_system_error(dataFilename.string());
+    }
+
+    std::getline(file,line);
+
+    return line;
 }
 
