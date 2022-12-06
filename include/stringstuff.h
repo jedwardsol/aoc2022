@@ -13,7 +13,7 @@ auto split(std::string_view  string, char delimiter)
 
 int stoi(std::string_view  string)
 {
-    int i;
+    int i{};
     auto result = std::from_chars(string.data(),string.data()+string.size(),i);
 
     if(result.ec != std::errc{})
@@ -29,6 +29,7 @@ auto numbersFromRegex(std::string const &line, std::string const &regex,  int nu
 {
     std::regex  matcher{regex};
     std::smatch matches;
+
     std::regex_match(line, matches, matcher);
 
     if(matches.size() != numExpected+1)
