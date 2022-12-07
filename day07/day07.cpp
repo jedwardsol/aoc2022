@@ -34,6 +34,7 @@ void enterDirectory(Directory &directory, std::deque<std::string>  &lines)
         auto line = lines.front();
         lines.pop_front();
 
+        // no strict parsing, but input is well formed, so it works.
         if(line == "$ cd ..")
         {
             break;
@@ -53,7 +54,7 @@ void enterDirectory(Directory &directory, std::deque<std::string>  &lines)
 
             directory.subdirectories[name]={};
         }
-        else
+        else                                // part of ls
         {
             size_t  nameStart;
             auto size = std::stoi(line,&nameStart);
@@ -71,18 +72,38 @@ void enterDirectory(Directory &directory, std::deque<std::string>  &lines)
 
 }
 
-void part1Sum(Directory const &dir, int64_t  &sum)
+int64_t sumSmallDirectories(Directory const &dir,  int64_t smallDirectoryMaxSize)
 {
-    if(dir.totalSize <= 100'000)
+    int64_t  sum{};
+
+    if(dir.totalSize <= smallDirectoryMaxSize)
     {
         sum+=dir.totalSize;
     }
 
     for(auto &[name, subdir] : dir.subdirectories)
     {
-        part1Sum(subdir,sum);
+        sum+=sumSmallDirectories(subdir,smallDirectoryMaxSize);
+    }
+
+    return sum;
+}
+
+void findDirToDelete(Directory const &dir, int64_t &candidateSize, int64_t excessUsed)
+{
+
+    if(dir.totalSize >= excessUsed)
+    {
+        candidateSize = std::min(candidateSize,dir.totalSize);
+    }
+
+    for(auto &[name, subdir] : dir.subdirectories)
+    {
+        findDirToDelete(subdir, candidateSize, excessUsed);
     }
 }
+
+
 
 int main()
 try
@@ -99,11 +120,30 @@ try
 
 // part 1 : sum of directory sizes where size <= 100000
 
-    int64_t  part1{};
+    constexpr int64_t smallDirectoryMaxSize    { 100'000 };
+    
+   
+    int64_t  part1Sum = sumSmallDirectories(root,smallDirectoryMaxSize);
 
-    part1Sum(root,part1);
+    print("part1 = {}\n",part1Sum);
 
-    print("part1 = {}",part1);
+                                    
+// part 2 : find the smallest directory to delete to give the necessary free space
+
+    constexpr int64_t totalDiskspace     { 70'000'000 };
+    constexpr int64_t requiredFreeSpace  { 30'000'000 };
+    
+    auto const        actualUsed         { root.totalSize };
+    auto const        actualFree         { totalDiskspace - actualUsed };
+
+    auto const        excessUsed         { requiredFreeSpace - actualFree};
+
+    int64_t           part2Size          { root.totalSize };
+    
+    
+    findDirToDelete(root, part2Size, excessUsed); 
+
+    print("part2 = {}\n",part2Size);
 
 }
 catch(std::exception const &e)
