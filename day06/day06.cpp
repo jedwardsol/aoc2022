@@ -5,11 +5,15 @@
 #include <vector>
 #include <string>
 #include <sstream>
-
+#include <chrono>
+namespace chr=std::chrono;
+#include <set>
+#include <unordered_set>
 
 // work back from end of packet.  If dupe is found,  tell findMarker it can move forward until
 // the 1st part of the dupe falls off the beginning.
-int calcIncrement(std::string_view marker)
+
+int calcIncrement_loop(std::string_view marker)
 {
     auto const size=static_cast<int>(marker.size());
 
@@ -27,6 +31,34 @@ int calcIncrement(std::string_view marker)
     return 0;
 }
 
+// the fancy set method is way *slower* than the nested loop
+//  loop            3.6us
+//  unordered_set  13.8ns
+//  set           109.5us
+
+int calcIncrement_set(std::string_view marker)
+{
+    std::unordered_set<char> seen;
+
+    auto const size=static_cast<int>(marker.size());
+
+    for(int i=size-1; i>=0; i--)
+    {
+        if(seen.contains(marker[i]))
+        {
+            return i+1;
+        }
+        else
+        {
+            seen.insert(marker[i]);
+        }
+    }
+
+    return 0;
+}
+
+
+
 template<size_t MarkerSize>
 int findMarker(std::string const &data)
 {
@@ -34,7 +66,7 @@ int findMarker(std::string const &data)
     
     while(pos < data.size()-MarkerSize)
     {
-        auto increment = calcIncrement( std::string_view(&data[pos],MarkerSize));
+        auto increment = calcIncrement_loop( std::string_view(&data[pos],MarkerSize));
 
         if(increment==0)
         {
@@ -58,9 +90,12 @@ try
 
     print("Part 1 : {}\n",startOfPacket);
 
+    auto start = chr::steady_clock::now();
     auto const startOfMessage = findMarker<14>(data);
+    auto end = chr::steady_clock::now();
 
-    print("Part 2 : {}\n",startOfMessage);
+
+    print("Part 2 : {} in {}\n",startOfMessage,end-start);
 }
 catch(std::exception const &e)
 {
