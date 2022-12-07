@@ -1,7 +1,7 @@
 #pragma once
 #include "include/thrower.h"
 #include <fstream>
-#include <vector>
+#include <deque>
 #include <string>
 #include <sstream>
 #include <filesystem>
@@ -40,7 +40,7 @@ auto getDataLine(TestData)
 
 auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
 {
-    std::vector<std::string>    data;
+    std::deque<std::string>    data;
     std::string line;
 
     auto dataFilename = fs::path{sourceLocation.file_name()}.replace_extension(".txt");
