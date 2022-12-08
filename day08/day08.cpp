@@ -11,52 +11,25 @@ struct Tree
 {
     int height;
     bool visibleFromOutside;
-};
 
+    int visibleToLeft;
+    int visibleToRight;
+    int visibleToTop;
+    int visibleToBottom;
+    int score;
+};
 
 struct Pos
 {
-    int row,column;
-
-    void up()
-    {
-        row--;
-    }
-
-    void down()
-    {
-        row++;
-    }
-
-    void left()
-    {
-        column--;
-    }
-
-    void right()
-    {
-        column++;
-    }
-
-
-
+    int row,col;
 };
 
 struct Forest
 {
-
-    bool outside(Pos pos)
-    {
-        return    pos.row < 0
-               || pos.row >= height
-               || pos.column < 0
-               || pos.column >= width;
-    }
-
-    Forest(size_t width, size_t height) : width{width},height{height},trees(width*height, Tree{})
+    Forest(int width, int height) : width{width},height{height},trees(width*height, Tree{})
     {}
 
-    auto operator[](size_t row)
+    auto operator[](int row)
     {
         return std::span<Tree>{trees.begin()+(row*width),
                                trees.begin()+((row+1)*width)};
@@ -64,23 +37,161 @@ struct Forest
 
     auto &operator[](Pos pos)
     {
-        return trees[ pos.row*width + pos.column];
+        return trees[ pos.row*width + pos.col];
     }
 
 
-
-    size_t              width;
-    size_t              height;
+    int                 width;
+    int                 height;
     std::vector<Tree>   trees;
 };
+
+
+bool visibleFromLeft(Forest  &forest, Pos pos)
+{
+    auto const height = forest[pos].height;
+
+    for(int col=0;col < pos.col;col++)
+    {
+        if(forest[pos.row][col].height >= height)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+int visibleToLeft(Forest  &forest, Pos pos) // how many between here and the edge or a tree of >= height
+{
+    int  count{};
+    auto const height = forest[pos].height;
+
+    for(int col=pos.col-1;col >= 0;col--)
+    {
+        count++;
+        if(forest[pos.row][col].height >= height)
+        {
+            break;
+        }
+    }
+    
+    return count;
+}
+
+
+
+
+bool visibleFromRight(Forest  &forest, Pos pos)
+{
+    auto const height = forest[pos].height;
+
+    for(int col=forest.width-1;col > pos.col;col--)
+    {
+        if(forest[pos.row][col].height >= height)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int visibleToRight(Forest  &forest, Pos pos) // how many between here and the edge or a tree of >= height
+{
+    int  count{};
+    auto const height = forest[pos].height;
+
+    for(int col=pos.col+1;col < forest.width;col++)
+    {
+        count++;
+        if(forest[pos.row][col].height >= height)
+        {
+            break;
+        }
+    }
+    
+    return count;
+}
+
+
+
+
+bool visibleFromTop(Forest  &forest, Pos pos)
+{
+    auto const height = forest[pos].height;
+
+    for(int row=0;row < pos.row;row++)
+    {
+        if(forest[row][pos.col].height >= height)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int visibleToTop(Forest  &forest, Pos pos) // how many between here and the edge or a tree of >= height
+{
+    int  count{};
+    auto const height = forest[pos].height;
+
+    for(int row=pos.row-1;row >= 0;row--)
+    {
+        count++;
+        if(forest[row][pos.col].height >= height)
+        {
+            break;
+        }
+    }
+    
+    return count;
+}
+
+
+
+bool visibleFromBottom(Forest  &forest, Pos pos)
+{
+    auto const height = forest[pos].height;
+
+    for(int row=forest.height-1;row > pos.row;row--)
+    {
+        if(forest[row][pos.col].height >= height)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int visibleToBottom(Forest  &forest, Pos pos) // how many between here and the edge or a tree of >= height
+{
+    int  count{};
+    auto const height = forest[pos].height;
+
+    for(int row=pos.row+1;row < forest.height;row++)
+    {
+        count++;
+        if(forest[row][pos.col].height >= height)
+        {
+            break;
+        }
+    }
+    
+    return count;
+}
+
+
 
 int main()
 try
 {
-    auto const lines = getDataLines(TestData{});
-//    auto const lines = getDataLines();
+//    auto const lines = getDataLines(TestData{});
+    auto const lines = getDataLines();
 
-    auto const size = lines.size();
+    int const size = static_cast<int>(lines.size());
 
     Forest forest{size,size};
 
@@ -92,42 +203,37 @@ try
         }
     }
 
-    for(int i=0;i<size;i++)
-    {
-        forest[i]     [0].visibleFromOutside        =true;
-        forest[i]     [size-1].visibleFromOutside   =true;
-        forest[0]     [i].visibleFromOutside        =true;
-        forest[size-1][i].visibleFromOutside        =true;
-    }
     
-    for(int row=1;row<size-1;row++)
+    for(int row=0;row<size;row++)
     {
-        for(int col=1;col<size-1;col++)
+        for(int col=0;col<size;col++)
         {
-            Pos pos{row,col};
+            Pos  const pos{row,col};
 
-            auto height = forest[pos].height;
+            forest[pos].visibleFromOutside =    visibleFromLeft(forest,pos)
+                                             || visibleFromRight(forest,pos)
+                                             || visibleFromTop(forest,pos)
+                                             || visibleFromBottom(forest,pos);
 
-            while(forest.up(pos))
-            {
-                if(forest[pos].height >= height)
-                {
-                    break;
-                }
-            }
+            forest[pos].visibleToLeft   =    visibleToLeft(forest,pos);
+            forest[pos].visibleToRight  =    visibleToRight(forest,pos);
+            forest[pos].visibleToTop    =    visibleToTop(forest,pos);
+            forest[pos].visibleToBottom =    visibleToBottom(forest,pos);
 
-            if(!forest
-
-
+            forest[pos].score =   forest[pos].visibleToLeft  
+                                * forest[pos].visibleToRight 
+                                * forest[pos].visibleToTop   
+                                * forest[pos].visibleToBottom;
         }
     }
-
-
-
 
     auto visible = std::ranges::count_if(forest.trees,[](bool b){return b;}, &Tree::visibleFromOutside);
 
     print("part 1 : {}\n",visible);
+
+    auto maxScore = std::ranges::max(forest.trees,{}, &Tree::score);
+
+    print("part 2 : {}\n",maxScore.score);
 
 }
 catch(std::exception const &e)

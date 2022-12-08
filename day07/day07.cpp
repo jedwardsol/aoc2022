@@ -1,13 +1,10 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
-#include <fstream>
-#include <vector>
 #include <string>
 #include <sstream>
 #include <map>
 #include <cassert>
-#include <ranges>
 #include <numeric>
 
 struct File
@@ -20,8 +17,8 @@ struct Directory
     int64_t     fileSize;
     int64_t     totalSize;
 
-    std::map<std::string,File>           files;
-    std::map<std::string,Directory>      subdirectories;
+    std::map<std::string,File>           files;                                 // never need the name
+    std::map<std::string,Directory>      subdirectories;                        // only need the name when parsing input
 };
 
 
@@ -56,7 +53,7 @@ void enterDirectory(Directory &directory, std::deque<std::string>  &lines)
         }
         else                                // part of ls
         {
-            size_t  nameStart;
+            size_t  nameStart{};
             auto size = std::stoi(line,&nameStart);
 
             auto name = line.substr(nameStart+1);
