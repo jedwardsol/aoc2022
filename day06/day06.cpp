@@ -1,14 +1,15 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stopwatch.h"
 #include <fstream>
 #include <vector>
 #include <string>
 #include <sstream>
-#include <chrono>
-namespace chr=std::chrono;
 #include <set>
 #include <unordered_set>
+
+
 
 // work back from end of packet.  If dupe is found,  tell findMarker it can move forward until
 // the 1st part of the dupe falls off the beginning.
@@ -90,12 +91,11 @@ try
 
     print("Part 1 : {}\n",startOfPacket);
 
-    auto start = chr::steady_clock::now();
+    jle::stopwatch  stopwatch;
+
     auto const startOfMessage = findMarker<14>(data);
-    auto end = chr::steady_clock::now();
 
-
-    print("Part 2 : {} in {}\n",startOfMessage,end-start);
+    print("Part 2 : {} in {} us\n",startOfMessage,stopwatch.microseconds());
 }
 catch(std::exception const &e)
 {

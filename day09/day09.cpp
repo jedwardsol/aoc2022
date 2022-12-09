@@ -132,7 +132,7 @@ void moveRope()
 
     print("Rope len {:6} : head visited:{:6}.   tail visited:{:6} in {:6.1f} ms\n",Len, headPositions.size(),tailPositions.size(), stopwatch.milliseconds());
 }
-
+          
 
 int main()
 try

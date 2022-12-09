@@ -5,31 +5,48 @@ namespace jle
 
 class stopwatch
 {
-    using clock = std::chrono::steady_clock;
+    using Clock = std::chrono::steady_clock;
 
 public:
 
-    stopwatch() : start{clock::now()}
+    stopwatch() : start{Clock::now()}
     {
     }
 
-    auto milliseconds()
+    double microseconds()
     {
-        const auto duration {clock::now()-start};
-
-        return std::chrono::duration_cast<std::chrono::microseconds>(duration).count()/1000.0;
+        std::chrono::duration<double, std::micro>   duration{Clock::now()-start};
+        
+        return duration.count();
     }
 
-    auto seconds()
-    {
-        const auto duration {clock::now()-start};
 
-        return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()/1000.0;
+    double milliseconds()
+    {
+        std::chrono::duration<double, std::milli>   duration{Clock::now()-start};
+        
+        return duration.count();
     }
+
+
+    double seconds()
+    {
+        std::chrono::duration<double>   duration{Clock::now()-start};
+        
+        return duration.count();
+    }
+
+    double minutes()
+    {
+        std::chrono::duration<double, std::ratio<60>>   duration{Clock::now()-start};
+        
+        return duration.count();
+    }
+
 
 private:
 
-    clock::time_point  start;
+    Clock::time_point  start;
 };
 
 }
