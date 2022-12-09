@@ -1,6 +1,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stopwatch.h"
 #include <map>
 #include <set>
 #include <array>
@@ -91,39 +92,9 @@ std::map<Pos,Pos> adjust
     {{+2,-2}, {+1,-1} },    // N
     {{-2,-2}, {-1,-1} },    // O
     {{-2,+2}, {-1,+1} },    // P
-
-
-
 };
 
 
-
-void part1()
-{
-    Pos     head{};
-    Pos     tail{};
-
-    std::set<Pos>  tailPositions{tail};
-
-    for(auto const &line : getDataLines())
-    {
-        auto const direction = line[0];
-        auto const distance  = stoi(line.substr(1));
-
-        for(int i=0;i<distance;i++)
-        {
-            head += move[direction];
-
-            auto const delta = head-tail;
-
-            tail+=adjust[delta];
-
-            tailPositions.insert(tail);
-        }
-    }
-
-    print("Part 1 : {}\n",tailPositions.size());
-}
 
 template <int Len>
 void moveRope()
@@ -132,7 +103,11 @@ void moveRope()
     constexpr int tail=Len-1;
 
     std::array<Pos,Len> rope{};       
+
+    std::set<Pos>       headPositions{rope[tail]};
     std::set<Pos>       tailPositions{rope[tail]};
+
+    jle::stopwatch  stopwatch;
 
     for(auto const &line : getDataLines())
     {
@@ -142,6 +117,7 @@ void moveRope()
         for(int i=0;i<distance;i++)
         {
             rope[head] += move.at(direction);
+            headPositions.insert(rope[head]);
 
             for(int knot=1;knot <= tail; knot++)
             {
@@ -154,23 +130,16 @@ void moveRope()
         }
     }
 
-    print("Rope len {:3} : {}\n",Len, tailPositions.size());
+    print("Rope len {:6} : head visited:{:6}.   tail visited:{:6} in {:6.1f} ms\n",Len, headPositions.size(),tailPositions.size(), stopwatch.milliseconds());
 }
 
 
 int main()
 try
 {
-//    part1();
     moveRope<2>();
     moveRope<10>();
-    moveRope<400>();
-    moveRope<410>();
-    moveRope<412>();
-    moveRope<414>();
-    moveRope<416>();
-    moveRope<417>();
-    moveRope<418>();
+    moveRope<10000>();
 
 }
 catch(std::exception const &e)
