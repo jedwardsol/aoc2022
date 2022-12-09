@@ -40,8 +40,8 @@ auto getDataLine(TestData)
 
 auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
 {
-    std::deque<std::string>    data;
-    std::string line;
+    std::vector<std::string>    data;
+    std::string                 line;
 
     auto dataFilename = fs::path{sourceLocation.file_name()}.replace_extension(".txt");
 

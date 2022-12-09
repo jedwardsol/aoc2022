@@ -6,6 +6,7 @@
 #include <map>
 #include <cassert>
 #include <numeric>
+#include <span>
 
 struct File
 {
@@ -24,12 +25,12 @@ struct Directory
 
 
 
-void enterDirectory(Directory &directory, std::deque<std::string>  &lines)
+void enterDirectory(Directory &directory, std::span<std::string>  &lines)
 {
     while(!lines.empty())
     {
-        auto line = lines.front();
-        lines.pop_front();
+        auto const &line = lines.front();
+        lines = lines.subspan(1);
 
         // no strict parsing, but input is well formed, so it works.
         if(line == "$ cd ..")
@@ -110,9 +111,11 @@ try
     auto lines = getDataLines();
 
     assert(lines.front()=="$ cd /");
-    lines.pop_front();
 
-    enterDirectory(root, lines);
+    std::span<std::string>   remainingLines{lines.begin()+1,lines.end()};
+
+
+    enterDirectory(root, remainingLines);
 
 
 // part 1 : sum of directory sizes where size <= 100000

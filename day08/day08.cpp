@@ -9,14 +9,9 @@
 
 struct Tree
 {
-    int height;
+    int  height;
     bool visibleFromOutside;
-
-    int visibleToLeft;
-    int visibleToRight;
-    int visibleToTop;
-    int visibleToBottom;
-    int score;
+    int  score;
 };
 
 struct Pos
@@ -215,15 +210,11 @@ try
                                              || visibleFromTop(forest,pos)
                                              || visibleFromBottom(forest,pos);
 
-            forest[pos].visibleToLeft   =    visibleToLeft(forest,pos);
-            forest[pos].visibleToRight  =    visibleToRight(forest,pos);
-            forest[pos].visibleToTop    =    visibleToTop(forest,pos);
-            forest[pos].visibleToBottom =    visibleToBottom(forest,pos);
 
-            forest[pos].score =   forest[pos].visibleToLeft  
-                                * forest[pos].visibleToRight 
-                                * forest[pos].visibleToTop   
-                                * forest[pos].visibleToBottom;
+            forest[pos].score =   visibleToLeft(forest,pos)
+                                * visibleToRight(forest,pos)
+                                * visibleToTop(forest,pos)
+                                * visibleToBottom(forest,pos);
         }
     }
 
