@@ -8,6 +8,9 @@
 #include <vector>
 #include <ranges>
 
+namespace Device
+{
+
 enum class OpCode
 {
     noop,
@@ -64,7 +67,7 @@ struct Registers
 };
 
 
-struct Device
+struct Peripheral
 {
     virtual void tick(Registers const &) = 0;
 };
@@ -81,7 +84,7 @@ class CPU
 
 public:
 
-    CPU(std::initializer_list<Device *>  devices) : devices(devices.begin(), devices.end())
+    CPU(std::initializer_list<Peripheral *>  peripherals) : peripherals(peripherals.begin(), peripherals.end())
     {
     }
 
@@ -109,20 +112,20 @@ private:
 
     void tick()
     {
-        for (auto& device : devices)
+        for (auto& peripheral : peripherals)
         {
-            device->tick(registers);
+            peripheral->tick(registers);
         }
 
         registers.rtc++;
     }
 
     Registers                 registers{1,1};
-    std::vector<Device*>      devices;
+    std::vector<Peripheral*>  peripherals;
 };
 
 
-class CRT : public Device
+class CRT : public Peripheral
 {
     int cursor{};
 
@@ -147,3 +150,5 @@ public:
         }
     }
 };
+
+}

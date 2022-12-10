@@ -9,11 +9,11 @@
 #include "device.h"
 
 
-struct Day10Debugger  : Device
+struct Day10Debugger  : Device::Peripheral
 {
     int     sum{};
 
-    void tick(Registers const &registers) override
+    void tick(Device::Registers const &registers) override
     {
         if(((registers.rtc-20) % 40) == 0)
         {
@@ -26,16 +26,13 @@ struct Day10Debugger  : Device
 int main()
 try
 {
+    auto const program = Device::Compiler{}.compile(getDataLines());
 
-    auto const program = Compiler{}.compile(getDataLines());
-
-    CRT             crt;
+    Device::CRT     crt;
     Day10Debugger   debugger;
-
-    CPU     cpu{&crt, &debugger};
+    Device::CPU     cpu{&crt, &debugger};
 
     cpu.run(program);    
-
 
     print("Part 1 : {}\n",debugger.sum);
 }
