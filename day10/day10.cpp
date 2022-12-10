@@ -4,28 +4,32 @@
 
 #include <ranges>
 #include <functional>
+#include <initializer_list>
 
+using ClockHandler = std::function<void(int, int)>;
+
+// instruction decode is the clock
 class CPU
 {
 public:
-    CPU(std::function<void(int,int)>    callback) : callback{std::move(callback)}
+    CPU(std::initializer_list<ClockHandler>    callbacks) : callbacks(callbacks.begin(), callbacks.end())
     {
     }
 
-    void run(std::ranges::forward_range auto &&program)
+    void run(std::ranges::forward_range auto&& program)
     {
-        for(auto const &line : program)
+        for (auto const& line : program)
         {
-            if(line.starts_with("noop"))
+            if (line.starts_with("noop"))
             {
                 tick();
             }
-            else if(line.starts_with("addx"))
+            else if (line.starts_with("addx"))
             {
                 tick();
                 tick();
                 auto increment = std::stoi(line.substr(4));
-                x+=increment;
+                x += increment;
             }
         }
     }
@@ -34,33 +38,60 @@ private:
 
     void tick()
     {
-        callback(cycle,x);
+        for (auto& callback : callbacks)
+        {
+            callback(cycle, x);
+        }
         cycle++;
     }
 
 
-    int                             x    {1};
-    int                             cycle{1};
-    std::function<void(int,int)>    callback;
+    int                             x{ 1 };
+    int                             cycle{ 1 };
+    std::vector<ClockHandler>       callbacks;
 
 };
+
+class CRT
+{
+    int cursor;
+
+public:
+
+    void operator()(int cycle, int x)
+    {
+        if (std::abs(x - cursor) < 2)
+        {
+            print("\xdb");
+        }
+        else
+        {
+            print(" ");
+        }
+
+        cursor++;
+        if (cursor == 40)
+        {
+            cursor = 0;
+            print("\n");
+        }
+    }
+};
+
 
 int main()
 try
 {
-
     int     part1Sum{};
     auto    part1=[&](int cycle, int x)
     {
         if(((cycle-20) % 40) == 0)
         {
-//            print("{}*{}={}\n",cycle,x,cycle*x);
-
             part1Sum+=cycle*x;
         }
     };
 
-    CPU     cpu{part1};
+    CPU     cpu{ part1,CRT{}};
 
     cpu.run(getDataLines());    
 
