@@ -6,97 +6,38 @@
 #include <functional>
 #include <initializer_list>
 
-using ClockHandler = std::function<void(int, int)>;
+#include "device.h"
 
-// instruction decode is the clock
-class CPU
+
+struct Day10Debugger  : Device
 {
-public:
-    CPU(std::initializer_list<ClockHandler>    callbacks) : callbacks(callbacks.begin(), callbacks.end())
+    int     sum{};
+
+    void tick(Registers const &registers) override
     {
-    }
-
-    void run(std::ranges::forward_range auto&& program)
-    {
-        for (auto const& line : program)
+        if(((registers.rtc-20) % 40) == 0)
         {
-            if (line.starts_with("noop"))
-            {
-                tick();
-            }
-            else if (line.starts_with("addx"))
-            {
-                tick();
-                tick();
-                auto increment = std::stoi(line.substr(4));
-                x += increment;
-            }
+            sum+=registers.rtc *registers.x;
         }
-    }
-
-private:
-
-    void tick()
-    {
-        for (auto& callback : callbacks)
-        {
-            callback(cycle, x);
-        }
-        cycle++;
-    }
-
-
-    int                             x{ 1 };
-    int                             cycle{ 1 };
-    std::vector<ClockHandler>       callbacks;
-
-};
-
-class CRT
-{
-    int cursor;
-
-public:
-
-    void operator()(int cycle, int x)
-    {
-        if (std::abs(x - cursor) < 2)
-        {
-            print("\xdb");
-        }
-        else
-        {
-            print(" ");
-        }
-
-        cursor++;
-        if (cursor == 40)
-        {
-            cursor = 0;
-            print("\n");
-        }
-    }
+    };
 };
 
 
 int main()
 try
 {
-    int     part1Sum{};
-    auto    part1=[&](int cycle, int x)
-    {
-        if(((cycle-20) % 40) == 0)
-        {
-            part1Sum+=cycle*x;
-        }
-    };
 
-    CPU     cpu{ part1,CRT{}};
+    auto const program = Compiler{}.compile(getDataLines());
 
-    cpu.run(getDataLines());    
+    CRT             crt;
+    Day10Debugger   debugger;
+
+    CPU     cpu{&crt, &debugger};
+
+    cpu.run(program);    
 
 
-    print("Part 1 : {}\n",part1Sum);
+    print("Part 1 : {}\n",debugger.sum);
 }
 catch(std::exception const &e)
 {
