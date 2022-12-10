@@ -17,22 +17,47 @@
 */
 
 
+struct Vector
+{
+    int dx{};
+    int dy{};
+
+    Vector  &operator+=(Vector const &rhs)
+    {
+        dx+=rhs.dx;
+        dy+=rhs.dy;
+        return *this;
+    }
+
+    Vector  &operator-=(Vector const &rhs)
+    {
+        dx-=rhs.dx;
+        dy-=rhs.dy;
+        return *this;
+    }
+
+    friend bool operator== (Vector const &lhs,Vector const &rhs)=default;
+    friend bool operator!= (Vector const &lhs,Vector const &rhs)=default;
+    friend auto operator<=>(Vector const &lhs,Vector const &rhs)=default;
+};
+
+
 struct Pos
 {
     int x{};
     int y{};
 
-    Pos  &operator+=(Pos const &rhs)
+    Pos  &operator+=(Vector const &rhs)
     {
-        x+=rhs.x;
-        y+=rhs.y;
+        x+=rhs.dx;
+        y+=rhs.dy;
         return *this;
     }
 
-    Pos  &operator-=(Pos const &rhs)
+    Pos  &operator-=(Vector const &rhs)
     {
-        x-=rhs.x;
-        y-=rhs.y;
+        x-=rhs.dx;
+        y-=rhs.dy;
         return *this;
     }
 
@@ -41,17 +66,26 @@ struct Pos
     friend auto operator<=>(Pos const &lhs,Pos const &rhs)=default;
 };
 
-Pos operator+(Pos  lhs,Pos const &rhs)
+Pos operator+(Pos  lhs,Vector const &rhs)
 {
     return lhs+=rhs;
 }
 
-Pos operator-(Pos  lhs,Pos const &rhs)
+Pos operator-(Pos  lhs,Vector const &rhs)
 {
     return lhs-=rhs;
 }
 
-std::map<char,Pos> move
+Vector operator-(Pos const &lhs,Pos const &rhs)
+{
+    return {lhs.x-rhs.x,lhs.y-rhs.y};
+}
+
+
+
+
+
+std::map<char,Vector> move
 {
     {'R', {+1, 0}},
     {'L', {-1, 0}},
@@ -70,7 +104,7 @@ std::map<char,Pos> move
 
 // if H-T = X then move T by adjust[X]
 
-std::map<Pos,Pos> adjust
+std::map<Vector,Vector> adjust
 {
     {{+2,+1}, {+1,+1} },    // C
     {{+2, 0}, {+1, 0} },    // 1
