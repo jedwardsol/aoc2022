@@ -35,7 +35,7 @@ class Compiler
     };
 
 public:
-    auto compile(std::ranges::forward_range auto&& program)
+    auto compile(std::span<std::string const> program)
     {
         std::vector<Instruction>    instructions;
 
