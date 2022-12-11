@@ -21,23 +21,24 @@ struct Monkey
     int64_t                 inspectCount{};
 };
 
+
+// easier to hardcode than parse the input data
 std::array<Monkey,8> const     myMonkeys
 {{
-/* 0 */  { {76, 88, 96, 97, 58, 61, 67},     Multiply{19},   3,   2, 3},
-/* 1 */  { {93, 71, 79, 83, 69, 70, 94, 98}, Add{8},        11,   5, 6},
-/* 2 */  { {50, 74, 67, 92, 61, 76},         Multiply{13},  19,   3, 1},
-/* 3 */  { {76,92},                          Add{6},         5,   1, 6},
-/* 4 */  { {74, 94, 55, 87, 62},             Add{5},         2,   2, 0},
-/* 5 */  { {59, 62, 53, 62},                 Square{},       7,   4, 7},
-/* 6 */  { {62},                             Add{2},        17,   5, 7},
-/* 7 */  { {85, 54, 53},                     Add{3},        13,   4, 0},
+    { {76, 88, 96, 97, 58, 61, 67},     Multiply{19},   3,   2, 3},         /* 0 */  
+    { {93, 71, 79, 83, 69, 70, 94, 98}, Add{8},        11,   5, 6},         /* 1 */  
+    { {50, 74, 67, 92, 61, 76},         Multiply{13},  19,   3, 1},         /* 2 */  
+    { {76,92},                          Add{6},         5,   1, 6},         /* 3 */  
+    { {74, 94, 55, 87, 62},             Add{5},         2,   2, 0},         /* 4 */  
+    { {59, 62, 53, 62},                 Square{},       7,   4, 7},         /* 5 */  
+    { {62},                             Add{2},        17,   5, 7},         /* 6 */  
+    { {85, 54, 53},                     Add{3},        13,   4, 0},         /* 7 */  
 }};
 
 
 
 void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
 {
-
     for(int round=0;round<rounds;round++)
     {
         for(auto &monkey : monkeys)
@@ -45,21 +46,15 @@ void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
             while(!monkey.items.empty())
             {
                 monkey.inspectCount++;
+
                 auto item = monkey.items.front();
                 monkey.items.pop_front();
 
-                item = monkey.operation(item);
+                item = worryReducer(monkey.operation(item));
 
-                item =  worryReducer(item);
-
-                if((item % monkey.divisorTest) == 0)
-                {
-                    monkeys[ monkey.trueTarget].items.push_back(item);
-                }
-                else
-                {
-                    monkeys[ monkey.falseTarget].items.push_back(item);
-                }
+                auto target = ((item % monkey.divisorTest) == 0) ?  monkey.trueTarget  :  monkey.falseTarget;
+                
+                monkeys[target].items.push_back(item);
             }
         }
     }
@@ -72,7 +67,9 @@ void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
 int main()
 try
 {
-    auto worryReducer = std::reduce(myMonkeys.begin(),myMonkeys.end(),1ll, [](int64_t accumulator, Monkey const &m1 ){return m1.divisorTest*accumulator;});
+    auto const worryReducer = std::reduce(myMonkeys.begin(),myMonkeys.end(),
+                                          1ll, 
+                                          [](int64_t accumulator, Monkey const &m1 ){return m1.divisorTest*accumulator;});
 
     go(myMonkeys,    20,Divide{3});
     go(myMonkeys,10'000,Modulo{worryReducer});

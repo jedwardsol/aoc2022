@@ -27,8 +27,6 @@ struct Divide
     }
 };
 
-
-
 struct Multiply
 {
     Multiply(int64_t multiplier) : multiplier{multiplier}
