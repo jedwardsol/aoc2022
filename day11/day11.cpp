@@ -1,6 +1,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stopwatch.h"
 #include <string>
 #include <deque>
 #include <functional>
@@ -39,6 +40,8 @@ std::array<Monkey,8> const     myMonkeys
 
 void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
 {
+    jle::stopwatch  stopwatch;
+
     for(int round=0;round<rounds;round++)
     {
         for(auto &monkey : monkeys)
@@ -61,7 +64,7 @@ void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
 
     std::ranges::sort(monkeys,std::greater{},&Monkey::inspectCount);
 
-    print("Answer {} \n", monkeys[0].inspectCount * monkeys[1].inspectCount);
+    print("Answer {:>12} in {} ms\n", monkeys[0].inspectCount * monkeys[1].inspectCount, stopwatch.milliseconds());
 }
 
 int main()
