@@ -14,7 +14,7 @@ using Operation = std::function<int64_t(int64_t)>;
 
 struct Monkey
 {
-    std::deque<int64_t>     items;
+    std::vector<int64_t>    items;
     Operation               operation;    
     int                     divisorTest;
     int                     trueTarget;
@@ -38,28 +38,34 @@ std::array<Monkey,8> const     myMonkeys
 
 
 
-void go(std::array<Monkey,8> monkeys, int rounds, Operation worryReducer)
+
+void doRound(std::array<Monkey,8> &monkeys, Operation const &worryReducer)
+{
+    for(auto &monkey : monkeys)
+    {
+        while(!monkey.items.empty())
+        {
+            monkey.inspectCount++;
+
+            auto item = monkey.items.back();
+            monkey.items.pop_back();
+
+            item = worryReducer(monkey.operation(item));
+
+            auto target = ((item % monkey.divisorTest) == 0) ?  monkey.trueTarget  :  monkey.falseTarget;
+                
+            monkeys[target].items.push_back(item);
+        }
+    }
+}
+
+void doRounds(int rounds, std::array<Monkey,8> monkeys, Operation const &worryReducer)
 {
     jle::stopwatch  stopwatch;
 
     for(int round=0;round<rounds;round++)
     {
-        for(auto &monkey : monkeys)
-        {
-            while(!monkey.items.empty())
-            {
-                monkey.inspectCount++;
-
-                auto item = monkey.items.front();
-                monkey.items.pop_front();
-
-                item = worryReducer(monkey.operation(item));
-
-                auto target = ((item % monkey.divisorTest) == 0) ?  monkey.trueTarget  :  monkey.falseTarget;
-                
-                monkeys[target].items.push_back(item);
-            }
-        }
+        doRound(monkeys,worryReducer);
     }
 
     std::ranges::sort(monkeys,std::greater{},&Monkey::inspectCount);
@@ -74,8 +80,8 @@ try
                                           1ll, 
                                           [](int64_t accumulator, Monkey const &m1 ){return m1.divisorTest*accumulator;});
 
-    go(myMonkeys,    20,Divide{3});
-    go(myMonkeys,10'000,Modulo{worryReducer});
+    doRounds(    20,myMonkeys,Divide{3});
+    doRounds(10'000,myMonkeys,Modulo{worryReducer});
 }
 catch(std::exception const &e)
 {

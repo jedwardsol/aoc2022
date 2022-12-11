@@ -8,7 +8,7 @@ struct Add
 
     int64_t addend;
 
-    int64_t operator()(int64_t a)
+    int64_t operator()(int64_t a) const
     {
         return a+addend;
     }
@@ -21,7 +21,7 @@ struct Divide
 
     int64_t divisor;
 
-    int64_t operator()(int64_t a)
+    int64_t operator()(int64_t a) const
     {
         return a/divisor;
     }
@@ -34,7 +34,7 @@ struct Multiply
 
     int64_t multiplier;
 
-    int64_t operator()(int64_t a)
+    int64_t operator()(int64_t a) const
     {
         return (a*multiplier);
     }
@@ -47,7 +47,7 @@ struct Modulo
 
     int64_t divisor;
 
-    int64_t operator()(int64_t a)
+    int64_t operator()(int64_t a) const
     {
         return (a%divisor);
     }
@@ -55,7 +55,7 @@ struct Modulo
 
 struct Square
 {
-    int64_t operator()(int64_t a)
+    int64_t operator()(int64_t a) const
     {
         return a*a;
     }
