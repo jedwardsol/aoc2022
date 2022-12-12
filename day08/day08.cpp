@@ -1,6 +1,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/posVector-RC.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -14,10 +15,6 @@ struct Tree
     int  score;
 };
 
-struct Pos
-{
-    int row,col;
-};
 
 struct Forest
 {

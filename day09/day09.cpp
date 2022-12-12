@@ -2,7 +2,7 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/stopwatch.h"
-#include "include/posVector.h"
+#include "include/posVector-XY.h"
 
 #include <map>
 #include <set>

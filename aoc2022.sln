@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{299204F8-3B96-4EAD-B612-F68AA0B71694}"
 	ProjectSection(SolutionItems) = preProject
 		include\getdata.h = include\getdata.h
+		include\posVector-RC.h = include\posVector-RC.h
+		include\posVector-XY.h = include\posVector-XY.h
 		include\print.h = include\print.h
 		include\stopwatch.h = include\stopwatch.h
 		include\stringstuff.h = include\stringstuff.h

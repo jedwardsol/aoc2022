@@ -2,6 +2,8 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/stopwatch.h"
+#include "include/posVector-RC.h"
+
 
 #include <vector>
 #include <span>
@@ -10,12 +12,6 @@
 
 constexpr auto farAway = std::numeric_limits<int>::max();
 
-struct Pos
-{
-    int row,col;
-
-    friend auto operator<=>(Pos const&,Pos const&)=default;
-};
 
 template<typename T>
 struct Grid
@@ -44,6 +40,16 @@ struct Grid
     {
         return data[ pos.row*width + pos.col];
     }
+
+
+    bool inGrid(Pos pos) const
+    {
+        return     pos.row >= 0
+                && pos.col >= 0
+                && pos.row < height
+                && pos.col < width;
+    }
+
 
     int                 width;
     int                 height;
@@ -276,7 +282,7 @@ try
 
 
     auto [part1Solution, part1Time] = solvePart1(terrain,start,end);
-    auto [part2Solution, part2Time]= solvePart2(terrain,end);
+    auto [part2Solution, part2Time] = solvePart2(terrain,end);
 
     print("Part 1 : {} in {} ms\n", part1Solution,part1Time);
     print("Part 2 : {} in {} ms\n", part2Solution,part2Time);

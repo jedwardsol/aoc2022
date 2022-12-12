@@ -27,8 +27,8 @@ struct Vector
 
 struct Pos
 {
-    int x{};
-    int y{};
+    int x{};                             // col
+    int y{};                             // row
 
     Pos  &operator+=(Vector const &rhs)
     {
