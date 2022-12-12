@@ -169,16 +169,17 @@ std::vector< Pos > getPart2Neighbours( Grid<int>  const &terrain, Pos here )
 
 
 // find shortest distance from end to any height=0.  Can't jump more than 1 step down
-std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const end)
+std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const summit)
 {
     Grid<Search>                    search {terrain.width, terrain.height};
     Queue                           fringe;
-
     jle::stopwatch                  stopwatch{};
 
+    Pos                             closestLowPoint{};
+
     
-    search[end].distance=0;
-    fringe.push( Candidate { 0, end} );
+    search[summit].distance=0;
+    fringe.push( Candidate { 0, summit} );
 
     while( !fringe.empty() ) 
     {
@@ -193,7 +194,8 @@ std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const end)
 
         if( terrain[current.pos] == 0 ) 
         {
-            return std::make_pair(search[current.pos].distance, stopwatch.milliseconds());
+            closestLowPoint=current.pos;
+            break;
         }
 
         auto neighbours  = getPart2Neighbours( terrain, current.pos );
@@ -211,6 +213,23 @@ std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const end)
         }
     }
 
-    throw_runtime_error("failed to find a route down");
+
+
+    Pos walk=closestLowPoint;
+
+    while(walk != summit)
+    {
+        search[walk].onPath=true;
+        walk=search[walk].source;
+    }
+
+    search[walk].onPath=true;
+
+
+
+    visualise(terrain,  search);
+
+    return std::make_pair(search[closestLowPoint].distance, stopwatch.milliseconds());
+
 }
 

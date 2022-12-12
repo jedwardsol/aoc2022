@@ -11,7 +11,7 @@
 #include "day12.h"
 
 
-auto altitude(char a)
+auto colour(char a)
 {
     auto RGB = 40+a*5;
 
@@ -19,13 +19,11 @@ auto altitude(char a)
     return std::format("\x1b[38;2;{0};{0};{0}m", RGB);
 }
 
-auto routeAltitude(char a)
+auto routecolour(char a)
 {
     auto R = 50+a*5;
     auto G = 50+a*8;
     auto B = 50+a*5;
-
-
 
     return std::format("\x1b[38;2;{0};{1};{2}m", R, G, B);
 }
@@ -46,11 +44,11 @@ void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search)
 
             if(search[row][col].onPath)
             {
-                print("{}{}", routeAltitude(c),'\xdb');
+                print("{}{}", routecolour(c),'\xdb');
             }
             else
             {
-                print("{}{}", altitude(c),'\xdb');
+                print("{}{}", colour(c),'\xdb');
             }
         }
 
@@ -58,6 +56,6 @@ void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search)
 
     }
 
-    print("{}",white());
+    print("{}\n",white());
 
 }
