@@ -11,24 +11,29 @@
 #include "day12.h"
 
 
-
 auto altitude(char a)
 {
-    return std::format("\x1b[38;2;{0};{0};{0}m", 20+a*10);
+    auto RGB = 40+a*5;
+
+
+    return std::format("\x1b[38;2;{0};{0};{0}m", RGB);
 }
 
 auto routeAltitude(char a)
 {
-    return std::format("\x1b[38;2;{0};{1};{2}m", 0,200,0);
+    auto R = 50+a*5;
+    auto G = 50+a*8;
+    auto B = 50+a*5;
+
+
+
+    return std::format("\x1b[38;2;{0};{1};{2}m", R, G, B);
 }
-
-
 
 auto white()
 {
     return std::format("\x1b[38;2;{0};{0};{0}m", 128);
 }
-
 
 
 void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search)
@@ -41,11 +46,11 @@ void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search)
 
             if(search[row][col].onPath)
             {
-                print("{}{}", routeAltitude(c),"\xdb\xdb");
+                print("{}{}", routeAltitude(c),'\xdb');
             }
             else
             {
-                print("{}{}", altitude(c),"\xdb\xdb");
+                print("{}{}", altitude(c),'\xdb');
             }
         }
 
