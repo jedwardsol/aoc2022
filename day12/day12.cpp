@@ -1,6 +1,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stopwatch.h"
 
 #include <vector>
 #include <span>
@@ -15,13 +16,6 @@ struct Pos
 
     friend auto operator<=>(Pos const&,Pos const&)=default;
 };
-
-struct Search
-{
-    int     distance{farAway};
-    bool    visited{false};
-};
-
 
 template<typename T>
 struct Grid
@@ -54,6 +48,12 @@ struct Grid
     int                 width;
     int                 height;
     std::vector<T>      data;
+};
+
+struct Search
+{
+    int     distance{farAway};
+    bool    visited{false};
 };
 
 struct Candidate
@@ -109,10 +109,12 @@ std::vector< Pos > getPart1Neighbours( Grid<int>  const &terrain, Pos here )
 
 
 // find shortest distance from start to end.  Can't climb more than 1 step up
-int solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
+auto solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
 {
     Grid<Search>                    search {terrain.width, terrain.height};
     std::priority_queue<Candidate>  fringe;
+
+    jle::stopwatch                  stopwatch{};
     
     search[start].distance=0;
     fringe.push( Candidate { 0, start} );
@@ -148,7 +150,7 @@ int solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
         }
     }
 
-    return search[end].distance;
+    return std::make_pair(search[end].distance, stopwatch.milliseconds());
 }
 
 std::vector< Pos > getPart2Neighbours( Grid<int>  const &terrain, Pos here )
@@ -193,10 +195,12 @@ std::vector< Pos > getPart2Neighbours( Grid<int>  const &terrain, Pos here )
 
 
 // find shortest distance from end to any height=0.  Can't climb more than 1 step up
-int solvePart2(Grid<int>    const &terrain, Pos const end)
+auto solvePart2(Grid<int>    const &terrain, Pos const end)
 {
     Grid<Search>                    search {terrain.width, terrain.height};
     std::priority_queue<Candidate>  fringe;
+    jle::stopwatch                  stopwatch{};
+
     
     search[end].distance=0;
     fringe.push( Candidate { 0, end} );
@@ -215,7 +219,7 @@ int solvePart2(Grid<int>    const &terrain, Pos const end)
 
         if( terrain[current.pos] == 0 ) 
         {
-            return search[current.pos].distance;
+            return std::make_pair(search[current.pos].distance, stopwatch.milliseconds());
         }
 
         auto neighbours  = getPart2Neighbours( terrain, current.pos );
@@ -271,11 +275,11 @@ try
     }
 
 
-    auto part1 = solvePart1(terrain,start,end);
-    auto part2 = solvePart2(terrain,end);
+    auto [part1Solution, part1Time] = solvePart1(terrain,start,end);
+    auto [part2Solution, part2Time]= solvePart2(terrain,end);
 
-    print("Part 1 : {}\n", part1);
-    print("Part 2 : {}\n", part2);
+    print("Part 1 : {} in {} ms\n", part1Solution,part1Time);
+    print("Part 2 : {} in {} ms\n", part2Solution,part2Time);
 
 }
 catch(std::exception const &e)
