@@ -50,29 +50,29 @@ struct Pos
 };
 
 
-Vector operator+(Vector  lhs,Vector const &rhs)
+inline Vector operator+(Vector  lhs,Vector const &rhs)
 {
     return lhs+=rhs;
 }
 
-Vector operator-(Vector  lhs,Vector const &rhs)
+inline Vector operator-(Vector  lhs,Vector const &rhs)
 {
     return lhs-=rhs;
 }
 
 
-Pos operator+(Pos  lhs,Vector const &rhs)
+inline Pos operator+(Pos  lhs,Vector const &rhs)
 {
     return lhs+=rhs;
 }
 
-Pos operator-(Pos  lhs,Vector const &rhs)
+inline Pos operator-(Pos  lhs,Vector const &rhs)
 {
     return lhs-=rhs;
 }
 
 
-Pos operator+(Vector const &lhs,Pos rhs)
+inline Pos operator+(Vector const &lhs,Pos rhs)
 {
     return rhs+=lhs;
 }
@@ -80,7 +80,7 @@ Pos operator+(Vector const &lhs,Pos rhs)
 
 
 
-Vector operator-(Pos const &lhs,Pos const &rhs)
+inline Vector operator-(Pos const &lhs,Pos const &rhs)
 {
     return {lhs.row-rhs.row,lhs.col-rhs.col};
 }

@@ -21,7 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="day05.txt">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </Text>
   </ItemGroup>
 </Project>
