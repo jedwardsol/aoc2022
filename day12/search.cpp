@@ -90,8 +90,30 @@ std::pair<int,double> solvePart1(Grid<int>    const &terrain, Pos const start, P
         }
     }
 
-    return std::make_pair(search[end].distance, stopwatch.milliseconds());
+    auto duration =  stopwatch.milliseconds();
+
+
+    Pos walk=end;
+
+    while(walk != start)
+    {
+        search[walk].onPath=true;
+        walk=search[walk].source;
+    }
+
+    search[walk].onPath=true;
+
+
+
+    visualise(terrain,  search);
+
+
+    return std::make_pair(search[end].distance, duration);
 }
+
+
+///////////////////////////////////////////////////////////
+
 
 std::vector< Pos > getPart2Neighbours( Grid<int>  const &terrain, Pos here )
 {

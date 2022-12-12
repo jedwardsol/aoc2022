@@ -11,11 +11,19 @@
 #include "day12.h"
 
 
-
+#include <Windows.h>
 
 int main()
 try
 {
+    auto console = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode{};
+    GetConsoleMode(console, &mode);
+    SetConsoleMode(console, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+
+
+
     auto const  data{getDataLines()};
 
     Grid<int>   terrain{static_cast<int>(data[0].size()), static_cast<int>(data.size())};

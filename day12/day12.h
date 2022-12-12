@@ -54,7 +54,8 @@ struct Search
 {
     int     distance{farAway};
     bool    visited{false};
-    Pos     source;
+    Pos     source{};
+    bool    onPath{};
 };
 
 struct Candidate
@@ -70,8 +71,9 @@ struct Candidate
 
 
 
-
-
 std::pair<int,double> solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end);
 std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const end);
+
+void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search);
+
 
