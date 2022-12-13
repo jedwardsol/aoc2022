@@ -74,6 +74,7 @@ List  getPacket(std::string const &line)
     return getList(walk);
 }
 
+// "ordered" from the puzzle means "less than" here
 
 struct ElementComparer
 {
@@ -91,6 +92,7 @@ struct ElementComparer
             }
         }
 
+        // equal up to now.  shorter lists are less than longer lists
         return lhs.size() <=> rhs.size();
     }
 
@@ -99,6 +101,7 @@ struct ElementComparer
         return lhs <=> rhs;
     }
 
+    // mixed : promote the int to a list containing just the int
     std::strong_ordering    operator()(List const &lhs, int const &rhs)
     {
         return (*this)(lhs, List{rhs});
@@ -111,29 +114,55 @@ struct ElementComparer
 };
 
 
+std::strong_ordering operator<=>(List const &lhs, List const &rhs)
+{
+    return ElementComparer{}(lhs,rhs);
+}
+
+
 int main()
 try
 {
     auto const data = getDataLines();
 
-    int sumOfOrderedPackets{};
+
+    std::vector<List>       packets;
 
     for(int i=0;i<data.size();i+=3)
     {
-        auto packet1 = getPacket(data[i]);
-        auto packet2 = getPacket(data[i+1]);
+        packets.push_back(getPacket(data[i]));
+        packets.push_back(getPacket(data[i+1]));
+    }
 
-        auto ordering = ElementComparer{}(packet1 ,packet2);
 
-        if(ordering == std::strong_ordering::less)
+
+    int sumOfOrderedPackets{};
+
+    for(int i=0;i<packets.size();i+=2)
+    {
+        auto const &packet1 = packets[i];
+        auto const &packet2 = packets[i+1];
+
+        if (packet1 < packet2 )
         {
-            sumOfOrderedPackets+=1+i/3;
+            sumOfOrderedPackets+=1+i/2;
         }
     }
 
     print("Part 1 : {}\n",sumOfOrderedPackets );
 
+    auto divider1 = getPacket("[[2]]");
+    auto divider2 = getPacket("[[6]]");
 
+    packets.push_back(divider1);
+    packets.push_back(divider2);
+
+    std::ranges::sort(packets);
+
+    auto pos1 = 1+std::distance(packets.begin(), std::ranges::find(packets,divider1));
+    auto pos2 = 1+std::distance(packets.begin(), std::ranges::find(packets,divider2));
+
+    print("Part 2 : {}\n",pos1*pos2);
 }
 catch(std::exception const &e)
 {
