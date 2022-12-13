@@ -21,15 +21,16 @@ public:
     using Base::operator=;
 };
 
+// Parse
 
-
+// would be neater with proper tokeniser
 int getInt(std::string_view &walk)
 {
-    int  i=stoi(walk);
+    int  i=stoi(walk);                      // consumes the digits
 
     if(walk[0]==',')
     {
-        walk.remove_prefix(1);
+        walk.remove_prefix(1);              // ','
     }
 
     return i;
@@ -52,12 +53,12 @@ List  getList(std::string_view &walk)
         }
     }
 
-    walk.remove_prefix(1);  // ']'
+    walk.remove_prefix(1);                  // ']'
 
-    if(   !walk.empty()
+    if(  !walk.empty()
        && walk[0]==',')
     {
-        walk.remove_prefix(1);
+        walk.remove_prefix(1);              // ','
     }
 
     return ret;
@@ -74,7 +75,8 @@ List  getPacket(std::string const &line)
     return getList(walk);
 }
 
-// "ordered" from the puzzle means "less than" here
+
+// Compare
 
 struct ElementComparer
 {
@@ -135,6 +137,7 @@ try
     }
 
 
+// part1 
 
     int sumOfOrderedPackets{};
 
@@ -143,16 +146,19 @@ try
         auto const &packet1 = packets[i];
         auto const &packet2 = packets[i+1];
 
+        // "ordered" from the puzzle means "less than" here
         if (packet1 < packet2 )
         {
-            sumOfOrderedPackets+=1+i/2;
+            sumOfOrderedPackets+=   1+i/2;              // indices are 1-based
         }
     }
 
     print("Part 1 : {}\n",sumOfOrderedPackets );
 
-    auto divider1 = getPacket("[[2]]");
-    auto divider2 = getPacket("[[6]]");
+// part2
+
+    auto const divider1 = getPacket("[[2]]");
+    auto const divider2 = getPacket("[[6]]");
 
     packets.push_back(divider1);
     packets.push_back(divider2);
