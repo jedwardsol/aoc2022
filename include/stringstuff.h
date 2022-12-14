@@ -12,7 +12,7 @@ auto split(std::string_view  string, char delimiter)
 }
 
 // returns an int and adjusts the view to consume the characters
-int stoi(std::string_view  &string)
+int stoi_c(std::string_view  &string)
 {
     int i{};
     auto result = std::from_chars(string.data(),string.data()+string.size(),i);
@@ -26,6 +26,45 @@ int stoi(std::string_view  &string)
 
     return i;
 }
+
+int stoi(std::string_view  string)
+{
+    int i{};
+    auto result = std::from_chars(string.data(),string.data()+string.size(),i);
+
+    if(result.ec != std::errc{})
+    {
+        throw_runtime_error("stoi from " + std::string{string});
+    }
+
+    return i;
+}
+
+inline auto split(std::string_view string, std::string_view  delim)
+{
+    size_t  walk{0};
+
+    std::vector<std::string_view>  result;     
+
+    while(!string.empty())
+    {
+        auto end = string.find(delim);
+
+        result.push_back( string.substr(0,end));
+
+        if(end!=string.npos)
+        {
+            string.remove_prefix(end+delim.size());
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return result;
+}
+
 
 
 auto numbersFromRegex(std::string const &line, std::string const &regex,  int numExpected)

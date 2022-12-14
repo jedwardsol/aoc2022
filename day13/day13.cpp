@@ -26,7 +26,7 @@ public:
 // would be neater with proper tokeniser
 int getInt(std::string_view &walk)
 {
-    int  i=stoi(walk);                      // consumes the digits
+    int  i=stoi_c(walk);                      // consumes the digits
 
     if(walk[0]==',')
     {
