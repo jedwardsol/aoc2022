@@ -80,7 +80,7 @@ auto buildCave()
         {
             auto const &halves = split(element,',');
 
-            pairs.emplace_back(stoi(halves.second),stoi(halves.first));
+            pairs.emplace_back(stoi(halves.second),stoi(halves.first));          // swap from x,y to row,col
         }
 
         Pos walk{pairs[0]};
@@ -157,6 +157,23 @@ Extents getExtents(Grid<char> const &cave)
 }
 
 
+void printCave(Grid<char> const &cave)
+{
+    auto extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+}
+
+
+
 void part1(Grid<char>   cave)
 {
     int     grains{};
@@ -204,24 +221,15 @@ void part1(Grid<char>   cave)
     }
 
     print("---\nPart 1\n---\n");
-    extents = getExtents(cave);
 
-    for(auto row = extents.top; row<=extents.bottom;row++)
-    {
-        for(auto col = extents.left; col<=extents.right;col++)
-        {
-            print("{}",cave[row][col]);
-        }
-
-        print("\n");
-    }
+    printCave(cave);
 
     print("number of grains {}\n---\n",grains);
 
 }
 
 
-
+// could merge part1 in.  part1 stops when 1st grain hits the floor.
 void part2(Grid<char>   cave)
 {
     int     grains{};
@@ -275,18 +283,7 @@ void part2(Grid<char>   cave)
     }
 
     print("---\nPart 2\n---\n");
-    extents = getExtents(cave);
-
-    for(auto row = extents.top; row<=extents.bottom;row++)
-    {
-        for(auto col = extents.left; col<=extents.right;col++)
-        {
-            print("{}",cave[row][col]);
-        }
-
-        print("\n");
-    }
-
+    printCave(cave);
     print("number of grains {}\n---\n",grains);
 
 }
@@ -300,17 +297,8 @@ try
 
     cave[0][500]='S';
 
-    auto extents = getExtents(cave);
+    printCave(cave);
 
-    for(auto row = extents.top; row<=extents.bottom;row++)
-    {
-        for(auto col = extents.left; col<=extents.right;col++)
-        {
-            print("{}",cave[row][col]);
-        }
-
-        print("\n");
-    }
 
 // Part 1
 
