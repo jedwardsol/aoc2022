@@ -78,7 +78,7 @@ void moveRope()
     std::set<Pos>       headPositions{rope[tail]};
     std::set<Pos>       tailPositions{rope[tail]};
 
-    jle::stopwatch  stopwatch;
+    stopwatch  stopwatch;
 
     for(auto const &line : getDataLines())
     {

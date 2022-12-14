@@ -61,7 +61,7 @@ void doRound(std::array<Monkey,8> &monkeys, Operation const &worryReducer)
 
 void doRounds(int rounds, std::array<Monkey,8> monkeys, Operation const &worryReducer)
 {
-    jle::stopwatch  stopwatch;
+    stopwatch  stopwatch;
 
     for(int round=0;round<rounds;round++)
     {

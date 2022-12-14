@@ -1,7 +1,5 @@
 #include <chrono>
 
-namespace jle
-{
 
 class stopwatch
 {
@@ -49,4 +47,3 @@ private:
     Clock::time_point  start;
 };
 
-}

@@ -41,7 +41,7 @@ public:
 
         for (auto const& line : program)
         {
-            auto const &[opCode,remainder] = split(line,' ');
+            auto const &[opCode,remainder] = splitIn2(line,' ');
 
             Instruction instruction{ decode[opCode].first};            
 

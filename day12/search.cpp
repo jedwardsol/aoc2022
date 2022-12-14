@@ -70,7 +70,7 @@ std::pair<int,double> solvePart1(Grid<int>    const &terrain, Pos const start, P
     Grid<Search>                    search {terrain.width, terrain.height};
     Queue                           fringe;
 
-    jle::stopwatch                  stopwatch{};
+    stopwatch                       stopwatch{};
     
     search[start].distance=0;
     fringe.push( Candidate { 0, start} );
@@ -173,7 +173,7 @@ std::pair<int,double> solvePart2(Grid<int>    const &terrain, Pos const summit)
 {
     Grid<Search>                    search {terrain.width, terrain.height};
     Queue                           fringe;
-    jle::stopwatch                  stopwatch{};
+    stopwatch                       stopwatch{};
 
     Pos                             closestLowPoint{};
 

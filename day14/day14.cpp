@@ -78,7 +78,7 @@ auto buildCave()
 
         for(auto const &element : split(line," -> "))
         {
-            auto const &halves = split(element,',');
+            auto const &halves = splitIn2(element,',');
 
             pairs.emplace_back(stoi(halves.second),stoi(halves.first));          // swap from x,y to row,col
         }

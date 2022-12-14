@@ -1,15 +1,45 @@
-#include <string_view>
 #include <tuple>
 #include <charconv>
 #include <string>
+#include <string_view>
 #include <regex>
+#include <ranges>
 #include "thrower.h"
 
-auto split(std::string_view  string, char delimiter)
+auto splitIn2(std::string_view  string, char delimiter)
 {
     auto pos = string.find(delimiter);
     return std::make_pair(string.substr(0,pos),string.substr(pos+1));
 }
+
+inline auto split(std::string_view string, std::string_view  delim)
+{
+    std::vector<std::string_view>  result;     
+
+    for(auto const element : std::views::split(string,delim))
+    {
+        result.emplace_back(element.begin(), element.end());
+    }
+
+    return result;
+}
+
+
+
+
+int stoi(std::string_view  string)
+{
+    int i{};
+    auto result = std::from_chars(string.data(),string.data()+string.size(),i);
+
+    if(result.ec != std::errc{})
+    {
+        throw_runtime_error("stoi from " + std::string{string});
+    }
+
+    return i;
+}
+
 
 // returns an int and adjusts the view to consume the characters
 int stoi_c(std::string_view  &string)
@@ -27,43 +57,7 @@ int stoi_c(std::string_view  &string)
     return i;
 }
 
-int stoi(std::string_view  string)
-{
-    int i{};
-    auto result = std::from_chars(string.data(),string.data()+string.size(),i);
 
-    if(result.ec != std::errc{})
-    {
-        throw_runtime_error("stoi from " + std::string{string});
-    }
-
-    return i;
-}
-
-inline auto split(std::string_view string, std::string_view  delim)
-{
-    size_t  walk{0};
-
-    std::vector<std::string_view>  result;     
-
-    while(!string.empty())
-    {
-        auto end = string.find(delim);
-
-        result.push_back( string.substr(0,end));
-
-        if(end!=string.npos)
-        {
-            string.remove_prefix(end+delim.size());
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return result;
-}
 
 
 
