@@ -85,7 +85,7 @@ auto buildCave()
 
         Pos walk{pairs[0]};
 
-        cave[walk]='#';
+        cave[walk]='\xdb';
 
         for(int i=1;i<pairs.size();i++)
         {
@@ -98,7 +98,7 @@ auto buildCave()
                 while(walk != target)
                 {
                     walk.col += direction;
-                    cave[walk]='#';
+                    cave[walk]='\xdb';
                 }
             }
             else
@@ -108,7 +108,7 @@ auto buildCave()
                 while(walk != target)
                 {
                     walk.row += direction;
-                    cave[walk]='#';
+                    cave[walk]='\xdb';
                 }
             }
         }
@@ -176,6 +176,63 @@ try
         print("\n");
     }
 
+// Part 1
+
+    int     grains{};
+    bool    inAbyss{false};
+
+    while(!inAbyss)
+    {
+        Pos sand{0,500};
+
+        while(sand.row < extents.bottom)
+        {
+            if(cave[sand.row+1][sand.col] == ' ')
+            {
+                sand.row++;
+            }
+            else if(cave[sand.row+1][sand.col-1] == ' ')
+            {
+                sand.row++;
+                sand.col--;
+            }
+            else if(cave[sand.row+1][sand.col+1] == ' ')
+            {
+                sand.row++;
+                sand.col++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if(sand.row == extents.bottom)
+        {
+            inAbyss=true;
+        }
+        else
+        {
+            cave[sand]='.';
+            grains++;
+        }
+
+    }
+
+    print("---\n");
+    extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+    print("Part 1 : {}\n",grains);
 
 
 }
