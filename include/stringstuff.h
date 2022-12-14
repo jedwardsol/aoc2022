@@ -6,7 +6,7 @@
 #include <ranges>
 #include "thrower.h"
 
-auto splitIn2(std::string_view  string, char delimiter)
+[[nodiscard]] inline auto splitIn2(std::string_view  string, char delimiter)
 {
     auto pos = string.find(delimiter);
     return std::make_pair(string.substr(0,pos),string.substr(pos+1));
@@ -27,7 +27,7 @@ inline auto split(std::string_view string, std::string_view  delim)
 
 
 
-int stoi(std::string_view  string)
+[[nodiscard]] inline int stoi(std::string_view  string)
 {
     int i{};
     auto result = std::from_chars(string.data(),string.data()+string.size(),i);
@@ -42,7 +42,7 @@ int stoi(std::string_view  string)
 
 
 // returns an int and adjusts the view to consume the characters
-int stoi_c(std::string_view  &string)
+[[nodiscard]] inline int stoi_c(std::string_view  &string)
 {
     int i{};
     auto result = std::from_chars(string.data(),string.data()+string.size(),i);
@@ -59,9 +59,7 @@ int stoi_c(std::string_view  &string)
 
 
 
-
-
-auto numbersFromRegex(std::string const &line, std::string const &regex,  int numExpected)
+[[nodiscard]] inline auto numbersFromRegex(std::string const &line, std::string const &regex,  int numExpected)
 {
     std::regex  matcher{regex};
     std::smatch matches;
@@ -75,9 +73,7 @@ auto numbersFromRegex(std::string const &line, std::string const &regex,  int nu
 
     std::vector<int> numbers(numExpected);
 
-                             
     std::transform(matches.begin()+1,matches.end(), numbers.begin(), [](std::string const &string){return std::stoi(string);});
     
     return numbers;
-
 }

@@ -13,7 +13,7 @@ namespace fs=std::filesystem;
 struct TestData{};
 
 
-auto getDataLines(TestData)
+[[nodiscard]] inline auto getDataLines(TestData)
 {
     extern std::istringstream testInput;
 
@@ -29,7 +29,7 @@ auto getDataLines(TestData)
 }
 
 
-auto getDataLine(TestData)
+[[nodiscard]] inline auto getDataLine(TestData)
 {
     extern std::istringstream testInput;
 
@@ -38,7 +38,7 @@ auto getDataLine(TestData)
 
 
 
-auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
+[[nodiscard]] inline auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
 {
     std::vector<std::string>    data;
     std::string                 line;
@@ -61,7 +61,7 @@ auto getDataLines(std::source_location const &sourceLocation = std::source_locat
 }
 
 
-auto getDataLine(std::source_location const &sourceLocation = std::source_location::current())
+[[nodiscard]] inline auto getDataLine(std::source_location const &sourceLocation = std::source_location::current())
 {
     std::string line;
 

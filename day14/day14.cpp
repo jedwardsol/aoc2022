@@ -3,6 +3,7 @@
 #include "include/getdata.h"
 #include "include/posVector-RC.h"
 #include "include/stringstuff.h"
+#include "include/stopwatch.h"
 
 #include <ranges>
 #include <string>
@@ -244,6 +245,8 @@ void part2(Grid<char>   cave)
 
     extents = getExtents(cave);
 
+    stopwatch stopwatch{};
+
     while(!caveFull)
     {
         Pos sand{0,500};
@@ -282,9 +285,11 @@ void part2(Grid<char>   cave)
         }
     }
 
+    auto duration = stopwatch.milliseconds();
+
     print("---\nPart 2\n---\n");
     printCave(cave);
-    print("number of grains {}\n---\n",grains);
+    print("number of grains {} in {} ms\n---\n",grains,duration);
 
 }
 
