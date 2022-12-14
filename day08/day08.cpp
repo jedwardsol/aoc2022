@@ -16,27 +16,7 @@ struct Tree
 };
 
 
-struct Forest
-{
-    Forest(int width, int height) : width{width},height{height},trees(width*height, Tree{})
-    {}
-
-    auto operator[](int row)
-    {
-        return std::span<Tree>{trees.begin()+(row*width),
-                               trees.begin()+((row+1)*width)};
-    }
-
-    auto &operator[](Pos pos)
-    {
-        return trees[ pos.row*width + pos.col];
-    }
-
-
-    int                 width;
-    int                 height;
-    std::vector<Tree>   trees;
-};
+using Forest = Grid<Tree>;
 
 
 bool visibleFromLeft(Forest  &forest, Pos pos)
@@ -215,11 +195,11 @@ try
         }
     }
 
-    auto visible = std::ranges::count_if(forest.trees,[](bool b){return b;}, &Tree::visibleFromOutside);
+    auto visible = std::ranges::count_if(forest.data,[](bool b){return b;}, &Tree::visibleFromOutside);
 
     print("part 1 : {}\n",visible);
 
-    auto maxScore = std::ranges::max(forest.trees,{}, &Tree::score);
+    auto maxScore = std::ranges::max(forest.data,{}, &Tree::score);
 
     print("part 2 : {}\n",maxScore.score);
 
