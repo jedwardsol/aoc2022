@@ -70,7 +70,7 @@ struct Grid
 
 auto buildCave()
 {
-    Grid<char>  cave{1000,200,' '};    
+    Grid<char>  cave{1000,170,' '};    
 
     for(auto const &line : getDataLines())
     {
@@ -157,29 +157,13 @@ Extents getExtents(Grid<char> const &cave)
 }
 
 
-int main()
-try
+void part1(Grid<char>   cave)
 {
-    auto cave = buildCave(); 
-
-    cave[0][500]='S';
+    int     grains{};
+    bool    inAbyss{false};
 
     auto extents = getExtents(cave);
 
-    for(auto row = extents.top; row<=extents.bottom;row++)
-    {
-        for(auto col = extents.left; col<=extents.right;col++)
-        {
-            print("{}",cave[row][col]);
-        }
-
-        print("\n");
-    }
-
-// Part 1
-
-    int     grains{};
-    bool    inAbyss{false};
 
     while(!inAbyss)
     {
@@ -219,7 +203,7 @@ try
 
     }
 
-    print("---\n");
+    print("---\nPart 1\n---\n");
     extents = getExtents(cave);
 
     for(auto row = extents.top; row<=extents.bottom;row++)
@@ -232,7 +216,106 @@ try
         print("\n");
     }
 
-    print("Part 1 : {}\n",grains);
+    print("number of grains {}\n---\n",grains);
+
+}
+
+
+
+void part2(Grid<char>   cave)
+{
+    int     grains{};
+    bool    caveFull{false};
+
+    auto extents = getExtents(cave);
+
+    for(int col=0;col<cave.width;col++)
+    {
+        cave[extents.bottom+2][col]='=';
+    }
+
+    extents = getExtents(cave);
+
+    while(!caveFull)
+    {
+        Pos sand{0,500};
+
+        while(sand.row < extents.bottom)
+        {
+            if(cave[sand.row+1][sand.col] == ' ')
+            {
+                sand.row++;
+            }
+            else if(cave[sand.row+1][sand.col-1] == ' ')
+            {
+                sand.row++;
+                sand.col--;
+            }
+            else if(cave[sand.row+1][sand.col+1] == ' ')
+            {
+                sand.row++;
+                sand.col++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if(sand == Pos{0,500})
+        {
+            caveFull=true;
+            grains++;
+        }
+        else
+        {
+            cave[sand]='.';
+            grains++;
+        }
+    }
+
+    print("---\nPart 2\n---\n");
+    extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+    print("number of grains {}\n---\n",grains);
+
+}
+
+
+
+int main()
+try
+{
+    auto cave = buildCave(); 
+
+    cave[0][500]='S';
+
+    auto extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+// Part 1
+
+    part1(cave);
+    part2(cave);
 
 
 }
