@@ -9,6 +9,7 @@
 #include <string_view>
 #include <cassert>
 #include <compare>
+#include <algorithm>
 
 class Element;
 using List = std::vector<Element>;
