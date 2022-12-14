@@ -1,0 +1,333 @@
+#include "include/print.h"
+#include "include/thrower.h"
+#include "include/getdata.h"
+#include "include/posVector-RC.h"
+#include "include/stringstuff.h"
+
+#include <ranges>
+#include <string>
+#include <string_view>
+using namespace std::literals;
+
+/*
+    +------>  X
+    |
+    |
+    |
+    V
+
+    Y
+
+
+
+*/
+
+
+
+template<typename T>
+struct Grid
+{
+    Grid(int width, int height, T  init=T{}) : width{width},height{height},data(width*height, init)
+    {}
+
+    auto operator[](int row)
+    {
+        return std::span<T>{data.begin()+(row*width),
+                            data.begin()+((row+1)*width)};
+    }
+
+    auto operator[](int row) const
+    {
+        return std::span<T const>{data.begin()+(row*width),
+                                  data.begin()+((row+1)*width)};
+    }
+
+    auto &operator[](Pos pos)
+    {
+        return data[ pos.row*width + pos.col];
+    }
+
+    auto &operator[](Pos pos) const
+    {
+        return data[ pos.row*width + pos.col];
+    }
+
+
+    bool inGrid(Pos pos) const
+    {
+        return     pos.row >= 0
+                && pos.col >= 0
+                && pos.row < height
+                && pos.col < width;
+    }
+
+
+    int                 width;
+    int                 height;
+    std::vector<T>      data;
+};
+
+
+auto buildCave()
+{
+    Grid<char>  cave{1000,170,' '};    
+
+    for(auto const &line : getDataLines())
+    {
+        std::vector<Pos> pairs;
+
+        for(auto const &element : split(line," -> "))
+        {
+            auto const &halves = split(element,',');
+
+            pairs.emplace_back(stoi(halves.second),stoi(halves.first));
+        }
+
+        Pos walk{pairs[0]};
+
+        cave[walk]='\xdb';
+
+        for(int i=1;i<pairs.size();i++)
+        {
+            Pos target = pairs[i];
+
+            if(walk.row == target.row)
+            {
+                auto direction = walk.col < target.col ? 1 : -1;
+
+                while(walk != target)
+                {
+                    walk.col += direction;
+                    cave[walk]='\xdb';
+                }
+            }
+            else
+            {
+                auto direction = walk.row < target.row ? 1 : -1;
+
+                while(walk != target)
+                {
+                    walk.row += direction;
+                    cave[walk]='\xdb';
+                }
+            }
+        }
+    }
+
+    return cave;
+}
+
+struct Extents
+{
+    int left {1000};
+    int right{0};
+
+    int top   {1000};
+    int bottom{0};
+};
+
+Extents getExtents(Grid<char> const &cave)
+{
+    Extents extents
+    {
+        cave.width,
+        0,
+        cave.height,
+        0,
+    };
+
+    for(auto row = 0; row<cave.height;row++)
+    {
+        for(auto col = 0; col<cave.width;col++)
+        {
+            if(cave[row][col]!=' ')
+            {
+                extents.left  = std::min(extents.left,  col);
+                extents.right = std::max(extents.right, col);
+
+                extents.top   = std::min(extents.top,   row);
+                extents.bottom= std::max(extents.bottom,row);
+            }
+        }
+
+    }
+
+
+    return extents;
+}
+
+
+void part1(Grid<char>   cave)
+{
+    int     grains{};
+    bool    inAbyss{false};
+
+    auto extents = getExtents(cave);
+
+
+    while(!inAbyss)
+    {
+        Pos sand{0,500};
+
+        while(sand.row < extents.bottom)
+        {
+            if(cave[sand.row+1][sand.col] == ' ')
+            {
+                sand.row++;
+            }
+            else if(cave[sand.row+1][sand.col-1] == ' ')
+            {
+                sand.row++;
+                sand.col--;
+            }
+            else if(cave[sand.row+1][sand.col+1] == ' ')
+            {
+                sand.row++;
+                sand.col++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if(sand.row == extents.bottom)
+        {
+            inAbyss=true;
+        }
+        else
+        {
+            cave[sand]='.';
+            grains++;
+        }
+
+    }
+
+    print("---\nPart 1\n---\n");
+    extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+    print("number of grains {}\n---\n",grains);
+
+}
+
+
+
+void part2(Grid<char>   cave)
+{
+    int     grains{};
+    bool    caveFull{false};
+
+    auto extents = getExtents(cave);
+
+    for(int col=0;col<cave.width;col++)
+    {
+        cave[extents.bottom+2][col]='=';
+    }
+
+    extents = getExtents(cave);
+
+    while(!caveFull)
+    {
+        Pos sand{0,500};
+
+        while(sand.row < extents.bottom)
+        {
+            if(cave[sand.row+1][sand.col] == ' ')
+            {
+                sand.row++;
+            }
+            else if(cave[sand.row+1][sand.col-1] == ' ')
+            {
+                sand.row++;
+                sand.col--;
+            }
+            else if(cave[sand.row+1][sand.col+1] == ' ')
+            {
+                sand.row++;
+                sand.col++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if(sand == Pos{0,500})
+        {
+            caveFull=true;
+            grains++;
+        }
+        else
+        {
+            cave[sand]='.';
+            grains++;
+        }
+    }
+
+    print("---\nPart 2\n---\n");
+    extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+    print("number of grains {}\n---\n",grains);
+
+}
+
+
+
+int main()
+try
+{
+    auto cave = buildCave(); 
+
+    cave[0][500]='S';
+
+    auto extents = getExtents(cave);
+
+    for(auto row = extents.top; row<=extents.bottom;row++)
+    {
+        for(auto col = extents.left; col<=extents.right;col++)
+        {
+            print("{}",cave[row][col]);
+        }
+
+        print("\n");
+    }
+
+// Part 1
+
+    part1(cave);
+    part2(cave);
+
+
+}
+catch(std::exception const &e)
+{
+    print("{}",e.what());
+}
+
+
+#include <sstream>
+
+// --------------------------
+std::istringstream testInput{
+R"(
+)"};
