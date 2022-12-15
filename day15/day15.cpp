@@ -11,6 +11,12 @@
 #include <numeric>
 
 
+int manhattan(Vector v)
+{
+    return std::abs(v.dx) + std::abs(v.dy);
+}
+
+
 struct Sensor
 {
     Pos     sensor;
@@ -18,9 +24,7 @@ struct Sensor
 
     auto radius() const     // Manhattan distance from sensor to beacon
     {
-        auto v = sensor-beacon;
-
-        return std::abs(v.dx) + std::abs(v.dy);
+        return manhattan(sensor-beacon);
     }
 };
 
@@ -82,7 +86,7 @@ void clampRanges(std::vector<InclusiveRange>     &coveredCells)
 
 
 
-int go1(std::vector<Sensor> const &sensors, int targetLine)
+int doPart1(std::vector<Sensor> const &sensors, int targetLine)
 {
     // return number of positions on targetLine where a beacon cannot be,  (there is 1 beacon on y= 2'000'000)
 
@@ -118,7 +122,7 @@ int go1(std::vector<Sensor> const &sensors, int targetLine)
 
 
 
-auto go2(std::vector<Sensor> const &sensors)
+auto doPart2BruteForce(std::vector<Sensor> const &sensors)
 {
     // Find only spot in square 0,0 > 4'000'000 , 4'000'000
     // that isn't covered
@@ -131,7 +135,6 @@ auto go2(std::vector<Sensor> const &sensors)
 */
 
     stopwatch stopwatch{};
-
 
     for(int y = 0;y<4'000'000;y++)
     {
@@ -154,6 +157,62 @@ auto go2(std::vector<Sensor> const &sensors)
     throw_runtime_error("failed");
 }
 
+
+auto doPart2Clever(std::vector<Sensor> const &sensors)
+{
+
+/*
+
+    ................................
+    ......D.........................
+    .....DDD........................
+    ....DDDDD.......................
+    ...DDDDDDD...C..................
+    ..DDDD4DDDD.CCC.................
+    ...DDDDDDD.CCCCC................
+    ....DDDDD@CCC3CCC...............
+    .....DDD.B.CCCCC................
+    ......D.BBB.CCC.................
+    .......BB2BB.C..................
+    ........BBB.....................
+    .........B......................
+
+
+
+*/
+
+
+    stopwatch stopwatch{};
+
+
+
+    for(int i= 0;i< sensors.size()-1;i++)
+    {
+        for(int j= i+1;j< sensors.size();j++)
+        {
+            auto &first  = sensors[i];
+            auto &second = sensors[j];
+
+            auto distanceApart = manhattan(first.sensor-second.sensor);
+            auto radiiSum      = first.radius()+second.radius();
+
+            auto gap           = distanceApart-radiiSum;
+
+            if(gap == 2 )
+            {
+                print("{:2} {:2} : {}   {}x{}   {}x{} \n",i,j, gap,   first.sensor.x,first.sensor.y,  second.sensor.x,second.sensor.y);
+            }
+
+        }
+    }
+
+ 
+
+    
+
+
+    throw_runtime_error("failed");
+}
 
 
 
@@ -186,11 +245,15 @@ try
 //    auto part1 = go1(sensors,10);
 
 
-    auto part1 = go1(sensors,2'000'000);
-    auto part2 = go2(sensors);
+    auto part1 = doPart1(sensors,2'000'000);
+    auto part2 = doPart2BruteForce(sensors);
+
 
     print("Part 1 {}\n",part1);
     print("Part 2 {} {} = {}\n",part2.first, part2.second ,    (part2.first * 4'000'000LL) + part2.second  );
+
+    doPart2Clever(sensors);
+
 
 }
 catch(std::exception const &e)
