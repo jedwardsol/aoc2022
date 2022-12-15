@@ -9,7 +9,9 @@
 #include <regex>
 #include <algorithm>
 #include <numeric>
-
+#include <cassert>
+#include <set>
+#include <algorithm>
 
 int manhattan(Vector v)
 {
@@ -122,7 +124,7 @@ int doPart1(std::vector<Sensor> const &sensors, int targetLine)
 
 
 
-auto doPart2BruteForce(std::vector<Sensor> const &sensors)
+Pos doPart2BruteForce(std::vector<Sensor> const &sensors)
 {
     // Find only spot in square 0,0 > 4'000'000 , 4'000'000
     // that isn't covered
@@ -148,7 +150,7 @@ auto doPart2BruteForce(std::vector<Sensor> const &sensors)
         {
             print("Part 2 time {} seconds\n",stopwatch.seconds());
             
-            return std::make_pair(coveredCells[0].second+1,y);
+            return Pos{coveredCells[0].second+1,y};
         }
     }
     
@@ -158,7 +160,22 @@ auto doPart2BruteForce(std::vector<Sensor> const &sensors)
 }
 
 
-auto doPart2Clever(std::vector<Sensor> const &sensors)
+// the beacon is somewhere in this set of points
+auto getRightBoundary(Sensor const &sensor)
+{
+    std::vector<Pos>   boundary;
+
+    for(int i = 0; i < sensor.radius(); i++)
+    {
+        boundary.emplace_back (  sensor.sensor.x + (sensor.radius()-i) + 1,  sensor.sensor.y+i);
+        boundary.emplace_back (  sensor.sensor.x + (sensor.radius()-i) + 1,  sensor.sensor.y-i);
+    }
+
+    return boundary;
+}
+
+// 1st
+Pos doPart2Clever(std::vector<Sensor> const &sensors)
 {
 
 /*
@@ -183,6 +200,8 @@ auto doPart2Clever(std::vector<Sensor> const &sensors)
 
     stopwatch stopwatch{};
 
+    std::vector< std::vector<Pos> >     boundaries;
+
 
     for(int i= 0;i< sensors.size()-1;i++)
     {
@@ -198,21 +217,37 @@ auto doPart2Clever(std::vector<Sensor> const &sensors)
 
             if(gap == 2 )
             {
-                print("{:2} {:2} : {}   {}x{}   {}x{} \n",i,j, gap,   first.sensor.x,first.sensor.y,  second.sensor.x,second.sensor.y);
+                if(first.sensor.x < second.sensor.x)
+                {
+                    boundaries.push_back( getRightBoundary(first)); 
+                }
+                else
+                {
+                    boundaries.push_back( getRightBoundary(second)); 
+                }
             }
         }
     }
 
+    assert(boundaries.size() == 2);
+
+
+    std::vector<Pos>  intersection;
+
+    std::ranges::sort(boundaries[0]);
+    std::ranges::sort(boundaries[1]);
+
+    std::set_intersection(boundaries[0].begin(),boundaries[0].end(),
+                          boundaries[1].begin(),boundaries[1].end(),
+                          std::back_inserter(intersection));
  
-    // now have 2 pairs of sensors each of which have a narrow gap between them
-    
-    // generate a list of points on the appropriate sides and find the intersect
+
+    assert(intersection.size() == 1);
 
 
-    
-
-
-    throw_runtime_error("failed");
+    print("Part 2 time {} seconds\n",stopwatch.seconds());
+            
+    return intersection[0];
 }
 
 
@@ -231,29 +266,15 @@ try
         sensors.push_back({{numbers[0],numbers[1]},{numbers[2],numbers[3]}});
     }
 
-/*
-    int totalRadius{};
-    for(auto const &sensor : sensors)
-    {
-        print("Radius : {}\n",sensor.radius());
-        totalRadius+=sensor.radius();
-    }
-
-    print("total radius = {}\n",totalRadius);
-*/
-
-
-//    auto part1 = go1(sensors,10);
-
 
     auto part1 = doPart1(sensors,2'000'000);
-    auto part2 = doPart2BruteForce(sensors);
+// auto part2 = doPart2BruteForce(sensors);       // 1.05 seconds
+    auto part2 = doPart2Clever(sensors);            // 0.08 seconds
 
 
     print("Part 1 {}\n",part1);
-    print("Part 2 {} {} = {}\n",part2.first, part2.second ,    (part2.first * 4'000'000LL) + part2.second  );
+    print("Part 2 {} {} = {}\n",part2.x, part2.y ,    (part2.x * 4'000'000LL) + part2.y  );
 
-    doPart2Clever(sensors);
 
 
 }
