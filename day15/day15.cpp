@@ -1,6 +1,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/stopwatch.h"
 
 #include "include/stringstuff.h"
 #include "include/posVector-XY.h"
@@ -22,6 +23,63 @@ struct Sensor
         return std::abs(v.dx) + std::abs(v.dy);
     }
 };
+
+using InclusiveRange = std::pair<int,int>;
+
+
+auto getRangesForLine(std::vector<Sensor> const &sensors, int targetLine)
+{
+    std::vector<InclusiveRange>     coveredCells;       // inclusive ranges
+
+    for(auto &sensor : sensors)        
+    {
+        auto const distanceFromTargetLine = std::abs(sensor.sensor.y-targetLine);
+
+        if(distanceFromTargetLine > sensor.radius())
+        {
+            continue;
+        }
+
+        coveredCells.emplace_back(  sensor.sensor.x - (sensor.radius() - distanceFromTargetLine),
+                                    sensor.sensor.x + (sensor.radius() - distanceFromTargetLine));
+    }
+
+    return coveredCells;
+}
+
+
+void mergeRanges(std::vector<InclusiveRange>     &coveredCells)
+{
+    std::ranges::sort(coveredCells,{},&std::pair<int,int>::first);
+
+    for(int i=0;i<coveredCells.size()-1;i++)
+    {
+        auto &range1 = coveredCells[i];        
+        auto &range2 = coveredCells[i+1];        
+
+        if(range2.first <= range1.second)
+        {
+            if(range2.second > range1.second)
+            {
+                range1.second = range2.second;
+            }
+
+            coveredCells.erase(coveredCells.begin()+i+1);
+            i--;
+        }
+    }
+}
+
+
+void clampRanges(std::vector<InclusiveRange>     &coveredCells)
+{
+    for(auto &range : coveredCells)
+    {
+        range.first  = std::clamp(range.first,  0, 4'000'000);
+        range.second = std::clamp(range.second, 0, 4'000'000);
+    }
+}
+
 
 
 int go1(std::vector<Sensor> const &sensors, int targetLine)
@@ -48,45 +106,55 @@ int go1(std::vector<Sensor> const &sensors, int targetLine)
         On row Y±2 it covers 2R+1 - 4  cells    from X-(R-2) to X+(r-2) inclusive
         On row Y±d it covers 2R+1 - 2d cells    from X-(R-d) to X+(r-d) inclusive
 */
-    std::vector<std::pair<int,int>>     coveredCells;       // inclusive ranges
 
-    for(auto &sensor : sensors)        
-    {
-        auto const distanceFromTargetLine = std::abs(sensor.sensor.y-targetLine);
+    auto coveredCells = getRangesForLine(sensors, targetLine);
 
-        if(distanceFromTargetLine > sensor.radius())
-        {
-            continue;
-        }
-
-        coveredCells.emplace_back(  sensor.sensor.x - (sensor.radius() - distanceFromTargetLine),
-                                    sensor.sensor.x + (sensor.radius() - distanceFromTargetLine));
-    }
-
-    std::ranges::sort(coveredCells,{},&std::pair<int,int>::first);
-
-    // merge overlapping ranges.
-    for(int i=0;i<coveredCells.size()-1;i++)
-    {
-        auto &range1 = coveredCells[i];        
-        auto &range2 = coveredCells[i+1];        
-
-        if(range2.first <= range1.second)
-        {
-            if(range2.second > range1.second)
-            {
-                range1.second = range2.second;
-            }
-
-            coveredCells.erase(coveredCells.begin()+i+1);
-            i--;
-        }
-    }
+    mergeRanges(coveredCells);
 
     auto sum = std::accumulate(coveredCells.begin(), coveredCells.end(), 0,  [](auto accumulator, auto range) { return accumulator + range.second-range.first+1;});
 
-    return sum-1;   // -1 because we know there's a beacon.
+    return sum-1;   // cheat  :   -1 because we know there's a beacon.  real solution should count the beacons on this line
 }
+
+
+
+auto go2(std::vector<Sensor> const &sensors)
+{
+    // Find only spot in square 0,0 > 4'000'000 , 4'000'000
+    // that isn't covered
+
+/*
+    could build on part1 and check 4'000'000 lines
+
+    or check around perimeters.  But that's 100'000'000 points too.
+
+*/
+
+    stopwatch stopwatch{};
+
+
+    for(int y = 0;y<4'000'000;y++)
+    {
+        auto coveredCells = getRangesForLine(sensors, y);
+
+        clampRanges(coveredCells);
+
+        mergeRanges(coveredCells);
+
+        if(coveredCells.size() != 1)
+        {
+            print("Part 2 time {} seconds\n",stopwatch.seconds());
+            
+            return std::make_pair(coveredCells[0].second+1,y);
+        }
+    }
+    
+
+
+    throw_runtime_error("failed");
+}
+
+
 
 
 int main()
@@ -103,11 +171,26 @@ try
         sensors.push_back({{numbers[0],numbers[1]},{numbers[2],numbers[3]}});
     }
 
+/*
+    int totalRadius{};
+    for(auto const &sensor : sensors)
+    {
+        print("Radius : {}\n",sensor.radius());
+        totalRadius+=sensor.radius();
+    }
+
+    print("total radius = {}\n",totalRadius);
+*/
+
+
 //    auto part1 = go1(sensors,10);
 
+
     auto part1 = go1(sensors,2'000'000);
+    auto part2 = go2(sensors);
 
     print("Part 1 {}\n",part1);
+    print("Part 2 {} {} = {}\n",part2.first, part2.second ,    (part2.first * 4'000'000LL) + part2.second  );
 
 }
 catch(std::exception const &e)
