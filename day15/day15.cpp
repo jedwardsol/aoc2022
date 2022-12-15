@@ -181,9 +181,7 @@ auto doPart2Clever(std::vector<Sensor> const &sensors)
 
 */
 
-
     stopwatch stopwatch{};
-
 
 
     for(int i= 0;i< sensors.size()-1;i++)
@@ -202,11 +200,14 @@ auto doPart2Clever(std::vector<Sensor> const &sensors)
             {
                 print("{:2} {:2} : {}   {}x{}   {}x{} \n",i,j, gap,   first.sensor.x,first.sensor.y,  second.sensor.x,second.sensor.y);
             }
-
         }
     }
 
  
+    // now have 2 pairs of sensors each of which have a narrow gap between them
+    
+    // generate a list of points on the appropriate sides and find the intersect
+
 
     
 
