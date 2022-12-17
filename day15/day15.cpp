@@ -245,7 +245,7 @@ Pos doPart2Clever(std::vector<Sensor> const &sensors)
     assert(intersection.size() == 1);
 
 
-    print("Part 2 time {} seconds\n",stopwatch.seconds());
+    print("Part 2 time {} milliseconds\n",stopwatch.milliseconds());
             
     return intersection[0];
 }
