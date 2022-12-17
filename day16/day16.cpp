@@ -8,6 +8,8 @@
 
 #include <cassert>
 #include <utility>
+#include "include/stopwatch.h"
+
 
 RawValves readValves()
 {
@@ -39,10 +41,10 @@ RawValves readValves()
 
 
 
-int part1Best{};
+//int part1Best{};
 
 
-void part1(Valves &valves, std::string const &currentName,  int timeRemaining, int currentScore)
+int explore(Valves &valves, std::string const &currentName,  int timeRemaining, int currentScore)
 {
     auto  &current = valves[currentName];
     assert(!current.turnedOn);
@@ -56,6 +58,8 @@ void part1(Valves &valves, std::string const &currentName,  int timeRemaining, i
         currentScore+=timeRemaining*current.flow;
     }
 
+    auto   bestScore=currentScore;
+
     for(auto &neighbour : current.neighbours)
     {
         auto &destination = valves[neighbour.name];
@@ -63,13 +67,15 @@ void part1(Valves &valves, std::string const &currentName,  int timeRemaining, i
         if(    !destination.turnedOn
            &&   timeRemaining > neighbour.distance)
         {
-            part1(valves, neighbour.name, timeRemaining-neighbour.distance, currentScore);
+            auto score = explore(valves, neighbour.name, timeRemaining-neighbour.distance, currentScore);
+
+            bestScore = std::max(score,bestScore);
         }
     }
 
     current.turnedOn = false;
 
-    part1Best = std::max(part1Best,currentScore);
+    return bestScore;
 }
 
 
@@ -79,9 +85,11 @@ try
     auto rawValves       =readValves();
     auto compressedValves=compressValves(rawValves);
 
-    part1(compressedValves,"AA",30,0);
+    stopwatch stopwatch;
 
-    print("Part 1 {} \n",part1Best);
+    auto part1 = explore(compressedValves,"AA",30,0);
+
+    print("Part 1 {} in {} ms\n",part1,stopwatch.milliseconds());
 
 }
 catch(std::exception const &e)
