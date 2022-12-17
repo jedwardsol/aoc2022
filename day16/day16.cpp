@@ -1,15 +1,17 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
-
+#include "include/stopwatch.h"
 #include "include/stringstuff.h"
 
 #include "day16.h"
 
 #include <cassert>
 #include <utility>
-#include "include/stopwatch.h"
+#include <bit>
 
+//Part 1 1584 in  0.9 seconds
+//Part 2 2052 in 14.0 seconds
 
 RawValves readValves()
 {
@@ -40,9 +42,6 @@ RawValves readValves()
 }
 
 
-
-
-
 int main()
 try
 {
@@ -51,26 +50,30 @@ try
 
     {
         stopwatch stopwatch;
-        auto part1 = explore(compressedValves,"AA",30,{});
-        print("Part 1 {} in {} ms\n",part1.score,stopwatch.milliseconds());
+        auto part1 = explore(compressedValves,0xFFFF,{},{"AA",30});
+        print("Part 1 {} in {:4.1f} seconds\n",part1.score,stopwatch.seconds());
     }
-
-/*
-    {
-        stopwatch stopwatch;
-
-        auto part2 = explore(compressedValves,"AA",26,{});
-        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
-
-        part2 = explore(compressedValves,"AA",26,part2);
-        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
-    }
-*/
 
     {
         stopwatch stopwatch;
-        auto part2 = explore2(compressedValves,"AA","AA",26,26,{});
-        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
+        int part2Best{};
+
+        for (uint16_t i = 0; i < (1 << 15); i++)
+        {
+            if (i & 1
+                && std::popcount(i) == 7)
+            {
+                auto me       = explore(compressedValves, i, {}, { "AA",26 });
+                auto elephant = explore(compressedValves,~i, {}, { "AA",26 });
+
+                auto score = me.score+elephant.score;
+
+                part2Best = std::max(part2Best,score);
+
+            }
+        }
+
+        print("Part 2 {} in {:4.1f} seconds\n", part2Best, stopwatch.seconds());
     }
 
 

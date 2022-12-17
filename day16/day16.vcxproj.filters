@@ -18,10 +18,10 @@
     <ClCompile Include="day16.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="read.cpp">
+    <ClCompile Include="compress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="compress.cpp">
+    <ClCompile Include="explore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

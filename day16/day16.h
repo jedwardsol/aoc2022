@@ -16,15 +16,14 @@ RawValves readValves();
 
 
 
-
 struct Valve
 {
     int                         flow{};
 
     struct Neighbour 
     {
-        std::string name;
-        int         distance;
+        std::string             name;
+        int                     distance;
     };
 
     std::vector<Neighbour>      neighbours{};
@@ -44,14 +43,18 @@ inline bool operator<(ValveState const &l, ValveState const &r)
 }
 
 using Valves = std::map<std::string,Valve>;
-
+            
 Valves compressValves(RawValves &rawValves);
 
-ValveState explore (Valves &valves, std::string const &currentName,  int timeRemaining, ValveState  currentState);
 
-ValveState explore2(Valves              &valves, 
-                    std::string const   &myLocation, 
-                    std::string const   &elephantLocation,                      
-                    int                  myTimeRemaining,
-                    int                  elephantTimeRemaining,
-                    ValveState           currentState);
+struct Explorer
+{
+    std::string     location;
+    int             timeRemaining;
+};
+
+
+ValveState explore (Valves         &valves,
+                    uint16_t        validValves,
+                    ValveState      valveState, 
+                    Explorer        explorer);

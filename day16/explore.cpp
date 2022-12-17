@@ -10,32 +10,38 @@
 #include <utility>
 
 
-ValveState explore(Valves              &valves, 
-                   std::string const   &currentName,  
-                   int                  timeRemaining,   
-                   ValveState           currentState)
+ValveState explore( Valves         &valves, 
+                    uint16_t        validValves,
+                    ValveState      valveState, 
+                    Explorer explorer)
 {
-    auto  &current = valves[currentName];
+    auto  &current = valves[explorer.location];
 
-    assert(!currentState.turnedOn[currentName]);
-    currentState.turnedOn[currentName] = true;
+    assert(!valveState.turnedOn[explorer.location]);
+    valveState.turnedOn[explorer.location] = true;
 
     if(   current.flow                      // AA might not have a flow, so we don't waste a minute turning it on
-       && timeRemaining > 0)
+       && explorer.timeRemaining > 0)
     {
-        timeRemaining--;
-        currentState.score+=timeRemaining*current.flow;
+        explorer.timeRemaining--;
+        valveState.score+= explorer.timeRemaining *current.flow;
     }
 
-    auto   bestState=currentState;
+    auto   bestState= valveState;
 
-    for(auto &neighbour : current.neighbours)
+//    for(auto &neighbour : current.neighbours)
+    for(int i = 0;i<current.neighbours.size();i++)
     {
+        auto &neighbour = current.neighbours[i];
 
-        if(    !currentState.turnedOn[neighbour.name]
-           &&   timeRemaining > neighbour.distance)
+        if(    validValves & (1<<i)
+           && !valveState.turnedOn[neighbour.name]
+           &&  explorer.timeRemaining > neighbour.distance)
         {
-            auto newState = explore(valves, neighbour.name, timeRemaining-neighbour.distance, currentState);
+            auto newState = explore(valves, 
+                                    validValves,
+                                    valveState, 
+                                    {neighbour.name, explorer.timeRemaining-neighbour.distance} );
 
             bestState = std::max(newState,bestState);
         }
@@ -45,90 +51,3 @@ ValveState explore(Valves              &valves,
     return bestState;
 }
 
-
-
-ValveState explore2(Valves              &valves, 
-                    std::string const   &myLocation, 
-                    std::string const   &elephantLocation,  
-                    int                  myTimeRemaining,
-                    int                  elephantTimeRemaining,
-                    ValveState           currentState)
-{
-    auto  &myValve          = valves[myLocation];
-    auto  &elephantValve    = valves[elephantLocation];
-
-    currentState.turnedOn[myLocation]       = true;
-    currentState.turnedOn[elephantLocation] = true;
-
-    if(   myValve.flow                      // AA might not have a flow, so we don't waste a minute turning it on
-       && myTimeRemaining > 0)
-    {
-        myTimeRemaining--;
-        currentState.score+=myTimeRemaining*myValve.flow;
-    }
-
-    if(   elephantValve.flow                      // AA might not have a flow, so we don't waste a minute turning it on
-       && elephantTimeRemaining > 0)
-    {
-        elephantTimeRemaining--;
-        currentState.score+=elephantTimeRemaining*elephantValve.flow;
-    }
-
-
-
-    auto   bestState=currentState;
-
-    for(auto &myNeighbour : myValve.neighbours)
-    {
-
-        if(    !currentState.turnedOn[myNeighbour.name]
-           &&   myTimeRemaining > myNeighbour.distance)
-        {
-            bool    elephantExplored{};
-
-            for(auto &elephantNeighbour : elephantValve.neighbours)
-            {
-
-                if(    elephantNeighbour.name != myNeighbour.name
-                   && !currentState.turnedOn[elephantNeighbour.name]
-                   &&  elephantTimeRemaining > elephantNeighbour.distance)
-                {
-                    elephantExplored=true;
-
-                    auto newState = explore2(valves, 
-                                             myNeighbour.name,
-                                             elephantNeighbour.name,
-                                             myTimeRemaining-myNeighbour.distance, 
-                                             elephantTimeRemaining-elephantNeighbour.distance, 
-                                             currentState);
-
-                    bestState = std::max(newState,bestState);
-
-                }
-
-
-            }
-
-            if(!elephantExplored)
-            {
-                auto newState = explore2(valves, 
-                                            myNeighbour.name,
-                                            "XXX",
-                                            myTimeRemaining-myNeighbour.distance, 
-                                            0, 
-                                            currentState);
-
-                bestState = std::max(newState,bestState);
-            }
-
-
-
-        }
-    }
-
-
-    return bestState;
-
-
-    return {};
-}

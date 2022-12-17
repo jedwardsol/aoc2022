@@ -71,8 +71,7 @@ auto shortestPaths(std::string const &start, RawValves &rawValves)
 
     for(auto &[name, search] : search)
     {
-        if(   search.distance > 0
-           && rawValves[name].flow)
+        if(   rawValves[name].flow)
         {
             neighbours.emplace_back(name,search.distance);
         }
