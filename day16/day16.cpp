@@ -41,42 +41,6 @@ RawValves readValves()
 
 
 
-//int part1Best{};
-
-
-int explore(Valves &valves, std::string const &currentName,  int timeRemaining, int currentScore)
-{
-    auto  &current = valves[currentName];
-    assert(!current.turnedOn);
-
-    current.turnedOn = true;
-
-    if(   current.flow                      // AA might not have a flow, so we don't waste a minute turning it on
-       && timeRemaining > 0)
-    {
-        timeRemaining--;
-        currentScore+=timeRemaining*current.flow;
-    }
-
-    auto   bestScore=currentScore;
-
-    for(auto &neighbour : current.neighbours)
-    {
-        auto &destination = valves[neighbour.name];
-
-        if(    !destination.turnedOn
-           &&   timeRemaining > neighbour.distance)
-        {
-            auto score = explore(valves, neighbour.name, timeRemaining-neighbour.distance, currentScore);
-
-            bestScore = std::max(score,bestScore);
-        }
-    }
-
-    current.turnedOn = false;
-
-    return bestScore;
-}
 
 
 int main()
@@ -85,11 +49,31 @@ try
     auto rawValves       =readValves();
     auto compressedValves=compressValves(rawValves);
 
-    stopwatch stopwatch;
+    {
+        stopwatch stopwatch;
+        auto part1 = explore(compressedValves,"AA",30,{});
+        print("Part 1 {} in {} ms\n",part1.score,stopwatch.milliseconds());
+    }
 
-    auto part1 = explore(compressedValves,"AA",30,0);
+/*
+    {
+        stopwatch stopwatch;
 
-    print("Part 1 {} in {} ms\n",part1,stopwatch.milliseconds());
+        auto part2 = explore(compressedValves,"AA",26,{});
+        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
+
+        part2 = explore(compressedValves,"AA",26,part2);
+        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
+    }
+*/
+
+    {
+        stopwatch stopwatch;
+        auto part2 = explore2(compressedValves,"AA","AA",26,26,{});
+        print("Part 2 {} in {} ms\n",part2.score,stopwatch.milliseconds());
+    }
+
+
 
 }
 catch(std::exception const &e)

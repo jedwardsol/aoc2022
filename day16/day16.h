@@ -29,10 +29,29 @@ struct Valve
 
     std::vector<Neighbour>      neighbours{};
 
-    int                         turnedOn{};
 };
 
+
+struct ValveState
+{
+    int                         score;
+    std::map<std::string,bool>  turnedOn;
+};
+
+inline bool operator<(ValveState const &l, ValveState const &r)
+{
+    return l.score<r.score;
+}
 
 using Valves = std::map<std::string,Valve>;
 
 Valves compressValves(RawValves &rawValves);
+
+ValveState explore (Valves &valves, std::string const &currentName,  int timeRemaining, ValveState  currentState);
+
+ValveState explore2(Valves              &valves, 
+                    std::string const   &myLocation, 
+                    std::string const   &elephantLocation,                      
+                    int                  myTimeRemaining,
+                    int                  elephantTimeRemaining,
+                    ValveState           currentState);

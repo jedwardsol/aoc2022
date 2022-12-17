@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="compress.cpp" />
     <ClCompile Include="day16.cpp" />
+    <ClCompile Include="explore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="day16.txt">
