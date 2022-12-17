@@ -149,7 +149,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="compress.cpp" />
     <ClCompile Include="day16.cpp" />
+    <ClCompile Include="read.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="day16.txt">
@@ -158,6 +160,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="day16.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
