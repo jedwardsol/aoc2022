@@ -58,9 +58,18 @@ try
         stopwatch stopwatch;
         int part2Best{};
 
+
+        // each valve has 15 other valves it can visit  (including itself)
+        // so split them in half and have you search 1 half, and the elephant the other.
+
+        // generate each 15-bit number.  If the split of on:off bits is 7:8 
+        // then use that bitmask to determine who visits which valves.
+
+        // i&1 check means one valve is always checked by the person.  This prevents re-calculating symmetric solutions,
+
         for (uint16_t i = 0; i < (1 << 15); i++)
         {
-            if (i & 1
+            if (   i & 1                        
                 && std::popcount(i) == 7)
             {
                 auto me       = explore(compressedValves, i, {}, { "AA",26 });
