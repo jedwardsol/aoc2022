@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include <vector>
 #include <map>
 #include <string>
@@ -12,10 +10,7 @@ struct RawValve
     std::vector<std::string>    neighbours{};
 };
 
-
 using RawValves = std::map<std::string,RawValve>;
-
-
 
 RawValves readValves();
 
@@ -32,8 +27,9 @@ struct Valve
         int         distance;
     };
 
-
     std::vector<Neighbour>      neighbours{};
+
+    int                         turnedOn{};
 };
 
 

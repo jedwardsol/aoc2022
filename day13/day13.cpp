@@ -150,14 +150,8 @@ try
         // "ordered" from the puzzle means "less than" here
         if (packet1 < packet2 )
         {
-            print("true\n");
             sumOfOrderedPackets+=   1+i/2;              // indices are 1-based
         }
-        else
-        {
-            print("false\n");
-        }
-
     }
 
     print("Part 1 : {}\n",sumOfOrderedPackets );
