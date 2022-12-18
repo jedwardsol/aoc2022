@@ -15,7 +15,7 @@ void printTower(Tower const &tower)
 {
     for(auto c : tower | std::views::reverse)
     {
-        std::string row(7,' ');
+        std::string row(7,'.');
         for(int bit=0;bit<7;bit++) 
         {
             if(c & (1<<bit))
@@ -46,19 +46,34 @@ void drop(Tower &tower, Jets &jets, Rock rock)
     tower.grow();
     auto rockPos = tower.height()+3;
 
-
-    while(rockPos > 0)
+    while(rockPos >= 0)
     {
         // Blow    
 
         if(jets.puff() == '>')
         {
-
+            if (!(rock & rightEdge))    // will it hit edge
+            {
+                if (!((rock >> 1) & tower.row(rockPos)))   // will it hit another piece
+                {
+                    rock>>=1;
+                }
+            }
+        }
+        else
+        {
+            if (!(rock & leftEdge))    // will it hit edge
+            {
+                if (!((rock << 1) & tower.row(rockPos)))   // will it hit another piece
+                {
+                    rock <<= 1;
+                }
+            }
         }
 
-
         // fall
-        if(tower.row(rockPos-1) & rock)
+        if(   rockPos==0
+           || tower.row(rockPos-1) & rock)
         {
             break;
         }
@@ -68,24 +83,24 @@ void drop(Tower &tower, Jets &jets, Rock rock)
 
     tower.row(rockPos) |= rock;
 
-    printTower(tower);  
 }
 
 
 int main()
 try
 {
-    Jets jets{getDataLine()};
-
-//  printReferenceTower();
-
-
+    Jets  jets{getDataLine()};
     Tower tower;
 
-    for(int i=0;i<20;i++)
+    for(int i=0;i<2022;i++)
     {
         drop(tower,jets,rocks[i%5]);
     }
+
+//  printTower(tower);
+
+    print("Part 1 : {}\n",tower.height());
+
 }
 catch(std::exception const &e)
 {
@@ -97,5 +112,4 @@ catch(std::exception const &e)
 
 // --------------------------
 std::istringstream testInput{
-R"(
-)"};
+R"(>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>)"};

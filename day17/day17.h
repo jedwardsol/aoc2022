@@ -21,6 +21,7 @@ constexpr Rock    corner     = 0b00000000'00000100'00000100'00011100;
 constexpr Rock    vertical   = 0b00010000'00010000'00010000'00010000;
 constexpr Rock    square     = 0b00000000'00000000'00011000'00011000;
 
+// 1's in bits 0 and 6. Test against an unshifted rock to see if it is at an edge
 constexpr Rock    rightEdge  = 0b00000001'00000001'00000001'00000001;
 constexpr Rock    leftEdge   = 0b01000000'01000000'01000000'01000000;
 
