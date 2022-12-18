@@ -36,14 +36,14 @@ struct TestData{};
     return testInput.str();
 }
 
-
-
-[[nodiscard]] inline auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
+[[nodiscard]] inline auto getDataFileName(std::source_location const &sourceLocation = std::source_location::current())
 {
-    std::vector<std::string>    data;
-    std::string                 line;
+    return fs::path{sourceLocation.file_name()}.replace_extension(".txt");
+}
 
-    auto dataFilename = fs::path{sourceLocation.file_name()}.replace_extension(".txt");
+[[nodiscard]] inline auto getDataFile(std::source_location const &sourceLocation = std::source_location::current())
+{
+    auto dataFilename = getDataFileName(sourceLocation);
 
     std::ifstream file{dataFilename};
 
@@ -51,6 +51,18 @@ struct TestData{};
     {
         throw_system_error(dataFilename.string());
     }
+
+    return file;
+}
+
+
+[[nodiscard]] inline auto getDataLines(std::source_location const &sourceLocation = std::source_location::current())
+{
+    auto file{getDataFile(sourceLocation)};
+
+    std::vector<std::string>    data;
+    std::string                 line;
+
 
     while(std::getline(file,line))
     {
