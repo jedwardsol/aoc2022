@@ -50,3 +50,42 @@ struct std::hash<State>
     }
 };
 
+
+
+inline Resources operator+(Resources resources, Robots const &robots)
+{
+    for(int i=0;i<4;i++)
+    {
+        resources[i] += robots[i];
+
+    }
+
+    return resources;
+};
+
+
+inline Resources operator-(Resources resources, Cost const &costs)
+{
+    for(int i=0;i<4;i++)
+    {
+        resources[i] -= costs[i];
+
+    }
+
+    return resources;
+};
+
+
+inline bool operator>=(Resources const &resources, Cost const &costs)
+{
+    for(int i=0;i<4;i++)
+    {
+        if(!(resources[i] >= costs[i]))
+        {
+            return false;
+        }
+
+    }
+
+    return true;
+};

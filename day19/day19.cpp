@@ -7,9 +7,9 @@
 
 #include <array>
 #include <vector>
-#include <unordered_set>
 #include <queue>
 #include <thread>
+#include <numeric>
 
 #include "day19.h"
 
@@ -19,7 +19,7 @@ auto readBlueprints()
 {
     std::vector<Blueprint>      blueprints;
     
-    for(auto const &line : getDataLines(TestData{}))
+    for(auto const &line : getDataLines())
     {
         auto regex=R"(Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.)";
 
@@ -53,43 +53,6 @@ auto readBlueprints()
 }
 
 
-Resources operator+(Resources resources, Robots const &robots)
-{
-    for(int i=0;i<4;i++)
-    {
-        resources[i] += robots[i];
-
-    }
-
-    return resources;
-};
-
-
-Resources operator-(Resources resources, Cost const &costs)
-{
-    for(int i=0;i<4;i++)
-    {
-        resources[i] -= costs[i];
-
-    }
-
-    return resources;
-};
-
-
-bool operator>=(Resources const &resources, Cost const &costs)
-{
-    for(int i=0;i<4;i++)
-    {
-        if(!(resources[i] >= costs[i]))
-        {
-            return false;
-        }
-
-    }
-
-    return true;
-};
 
 
 // Next state
@@ -102,121 +65,113 @@ bool operator>=(Resources const &resources, Cost const &costs)
 //  decrement time
 
 
+
+
+int makeGeodes(Blueprint const &blueprint, State  currentState)
+{
+
+    if(currentState.timeLeft == 0)
+    {
+        return currentState.resourcesOwned[Resource::geode];
+    }
+
+
+    int  bestResult{};
+
+
+    // try a geode robot
+    if( currentState.resourcesOwned >= blueprint.costs[Resource::geode])
+    {
+        Robots newRobots{currentState.robotsOwned};
+        newRobots[Resource::geode]++;
+
+        State newState
+        {
+            currentState.resourcesOwned+currentState.robotsOwned-blueprint.costs[Resource::geode],
+            newRobots,
+            currentState.timeLeft-1
+        };
+
+        return makeGeodes(blueprint,newState);
+    }
+
+
+    // try other robots
+    for(int i=0;i<3;i++)
+    {
+        if(currentState.robotsOwned[i] == blueprint.maxRobotsNeeded[i])
+        {
+            // not worth it
+            continue;
+        }
+                
+        if( currentState.resourcesOwned >= blueprint.costs[i])
+        {
+            Robots newRobots{currentState.robotsOwned};
+            newRobots[i]++;
+
+            State newState
+            {
+                currentState.resourcesOwned+currentState.robotsOwned-blueprint.costs[i],
+                newRobots,
+                currentState.timeLeft-1
+            };
+
+            bestResult = std::max(bestResult, makeGeodes(blueprint, newState)); 
+            
+        }
+    }
+
+
+
+
+    // try waiting
+    {
+        State newState
+        {
+            currentState.resourcesOwned+currentState.robotsOwned,
+            currentState.robotsOwned,
+            currentState.timeLeft-1
+        };
+
+        bestResult = std::max(bestResult, makeGeodes(blueprint, newState)); 
+    }
+
+
+
+
+    return bestResult;
+}
+
+
+
 struct Result
 {
     int     id;
     int     geodes;
     double  time;
-    size_t  longestFringe;
 };
-
 
 void evaluateBlueprint(Blueprint const &blueprint,  Result  &result)
 try
 {
+    stopwatch       stopwatch;
+    State           initialState{ {0,0,0,0}, {1,0,0,0}, 24};
 
-    State                       initialState{ {0,0,0,0}, {1,0,0,0}, 22};
+    auto geodes = makeGeodes(blueprint, initialState);
 
-    std::queue<State>           fringe;
-
-    int                         bestGeodes{};
-    size_t                      longestFringe{};
-
-    stopwatch                   stopwatch;
-
-    fringe.push(initialState);
-
-
-    while(!fringe.empty())
-    {
-        longestFringe=std::max(longestFringe,fringe.size());
-
-        auto current = fringe.front();
-        fringe.pop();
-
-        if(current.timeLeft == 0)
-        {
-            bestGeodes = std::max(bestGeodes, current.resourcesOwned[Resource::geode]);
-            continue;
-       }
-
-
-        auto const originalResources = current.resourcesOwned;
-
-        // try waiting
-
-        {
-            State newState
-            {
-                current.resourcesOwned+current.robotsOwned,
-                current.robotsOwned,
-                current.timeLeft-1
-            };
-
-            fringe.push(newState);
-        }
-
-
-        // making robots
-        //  make geode robot if possible
-        //  else try the rest
-
-        if( current.resourcesOwned >= blueprint.costs[Resource::geode])
-        {
-            Robots newRobots{current.robotsOwned};
-            newRobots[Resource::geode]++;
-
-            State newState
-            {
-                current.resourcesOwned+current.robotsOwned-blueprint.costs[Resource::geode],
-                newRobots,
-                current.timeLeft-1
-            };
-
-            fringe.push(newState);
-        }
-        else
-        {
-            for(int i=0;i<3;i++)
-            {
-                if(current.robotsOwned[i] == 4)//blueprint.maxRobotsNeeded[i])
-                {
-                    continue;
-                }
-                
-                if( current.resourcesOwned >= blueprint.costs[i])
-                {
-                    Robots newRobots{current.robotsOwned};
-                    newRobots[i]++;
-
-                    State newState
-                    {
-                        current.resourcesOwned+current.robotsOwned-blueprint.costs[i],
-                        newRobots,
-                        current.timeLeft-1
-                    };
-
-                    fringe.push(newState);
-            
-                }
-            }
-        }
-    }
-
-    
     result = 
     {
         blueprint.id,
-        bestGeodes,
+        geodes,
         stopwatch.seconds(),
-        longestFringe
     };
+
 }
 catch(std::exception const &e)
 {
     print("{}",e.what());
 }
-
 
 
 int main()
@@ -226,18 +181,17 @@ try
 
 
     
-
+/*
     for(auto const &blueprint : blueprints)
     {
         Result  result;
         evaluateBlueprint(blueprint,result);
-        print("{} : {} in {} seconds  fringe = {}\n",result.id, result.geodes, result.time, result.longestFringe);
+        print("{} : {} in {} seconds.\n",result.id, result.geodes, result.time);
     }
+*/
 
 
 
-
-/*
     std::vector<std::thread>    threads(blueprints.size());   
     std::vector<Result>         results(blueprints.size());   
 
@@ -256,8 +210,15 @@ try
     {
         print("{} : {} in {} seconds\n",result.id, result.geodes, result.time);
     }
-*/
 
+
+    auto part1 = std::accumulate(results.begin(), results.end(), 0,
+                                 [](int accumulator, Result const &result)
+                                 {
+                                    return accumulator+ (result.geodes*result.id);
+                                 });
+
+    print("Part 1 : {}\n",part1);
 
 }
 catch(std::exception const &e)
