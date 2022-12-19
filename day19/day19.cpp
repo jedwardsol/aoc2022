@@ -75,10 +75,6 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
     }
 
 
-
-    int  bestResult{};
-
-
     // try a geode robot
     if( currentState.resourcesOwned >= blueprint.costs[Resource::geode])
     {
@@ -98,7 +94,8 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
     }
 
 
-    Robots  buildable{};
+    int     bestResult{};
+    Robots  buildable{};        // remember which robots are buildable this minute.  So in the "wait and save up" branch we don't bother trying to make them.   Very effective optimisation
 
     // try other robots
     for(int i=0;i<3;i++)
@@ -129,7 +126,9 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
                 currentState.timeLeft-1
             };
 
-            bestResult = std::max(bestResult, makeGeodes(blueprint, newState,{},earlyQuit)); 
+            auto result = makeGeodes(blueprint, newState,{},earlyQuit);
+
+            bestResult = std::max(bestResult, result); 
         }
     }
 
@@ -142,7 +141,9 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
             currentState.timeLeft-1
         };
 
-        bestResult = std::max(bestResult, makeGeodes(blueprint, newState, buildable,earlyQuit));          // and skip building robots we could've built this minute
+        auto result = makeGeodes(blueprint, newState, buildable,earlyQuit);          // and skip building robots we could've built this minute
+        
+        bestResult = std::max(bestResult, result);
     }
 
 

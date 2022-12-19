@@ -1,11 +1,8 @@
-#define NOMINMAX
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include <vector>
 #include <algorithm>
-
-
 
 
 int main()
