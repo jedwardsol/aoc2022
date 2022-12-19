@@ -3,10 +3,13 @@
 #include "include/getdata.h"
 #include "include/stringstuff.h"
 #include "include/hash.h"
+#include "include/stopwatch.h"
 
 #include <array>
 #include <vector>
 #include <unordered_set>
+#include <queue>
+#include <thread>
 
 #include "day19.h"
 
@@ -33,6 +36,16 @@ auto readBlueprints()
             }}
         };
 
+
+        for(int robot = 0; robot<4;robot++)
+        {
+            for(int resource = 0; resource<4;resource++)
+            {
+                blueprint.maxRobotsNeeded[robot] = std::max(blueprint.maxRobotsNeeded[robot],  blueprint.costs[resource][robot]);
+            }
+        }
+
+
         blueprints.push_back(blueprint);
     }
 
@@ -40,29 +53,171 @@ auto readBlueprints()
 }
 
 
+Resources operator+(Resources resources, Robots const &robots)
+{
+    for(int i=0;i<4;i++)
+    {
+        resources[i] += robots[i];
+
+    }
+
+    return resources;
+};
+
+
+Resources operator-(Resources resources, Cost const &costs)
+{
+    for(int i=0;i<4;i++)
+    {
+        resources[i] -= costs[i];
+
+    }
+
+    return resources;
+};
+
+
+bool operator>=(Resources const &resources, Cost const &costs)
+{
+    for(int i=0;i<4;i++)
+    {
+        if(!(resources[i] >= costs[i]))
+        {
+            return false;
+        }
+
+    }
+
+    return true;
+};
+
 
 // Next state
 //
+//  increment resources 
+
 //  for each robot type
 //          buy a robot if you can     (one at a time)
 //      or  don't buy a robot
-//  increment resources (based on old robot count)
 //  decrement time
 
 
-
-int evaluateBlueprint(Blueprint const &blueprint)
+struct Result
 {
-    State   initialState{ {0,0,0,0}, {1,0,0,0}, 24};
+    int     id;
+    int     geodes;
+    double  time;
+    size_t  longestFringe;
+};
 
-    int     bestGeodes{};
+
+void evaluateBlueprint(Blueprint const &blueprint,  Result  &result)
+try
+{
+
+    State                       initialState{ {0,0,0,0}, {1,0,0,0}, 22};
+
+    std::queue<State>           fringe;
+
+    int                         bestGeodes{};
+    size_t                      longestFringe{};
+
+    stopwatch                   stopwatch;
+
+    fringe.push(initialState);
 
 
-    std::unordered_set<State>     visitedStates;
+    while(!fringe.empty())
+    {
+        longestFringe=std::max(longestFringe,fringe.size());
+
+        auto current = fringe.front();
+        fringe.pop();
+
+        if(current.timeLeft == 0)
+        {
+            bestGeodes = std::max(bestGeodes, current.resourcesOwned[Resource::geode]);
+            continue;
+       }
 
 
-    return bestGeodes;
+        auto const originalResources = current.resourcesOwned;
+
+        // try waiting
+
+        {
+            State newState
+            {
+                current.resourcesOwned+current.robotsOwned,
+                current.robotsOwned,
+                current.timeLeft-1
+            };
+
+            fringe.push(newState);
+        }
+
+
+        // making robots
+        //  make geode robot if possible
+        //  else try the rest
+
+        if( current.resourcesOwned >= blueprint.costs[Resource::geode])
+        {
+            Robots newRobots{current.robotsOwned};
+            newRobots[Resource::geode]++;
+
+            State newState
+            {
+                current.resourcesOwned+current.robotsOwned-blueprint.costs[Resource::geode],
+                newRobots,
+                current.timeLeft-1
+            };
+
+            fringe.push(newState);
+        }
+        else
+        {
+            for(int i=0;i<3;i++)
+            {
+                if(current.robotsOwned[i] == 4)//blueprint.maxRobotsNeeded[i])
+                {
+                    continue;
+                }
+                
+                if( current.resourcesOwned >= blueprint.costs[i])
+                {
+                    Robots newRobots{current.robotsOwned};
+                    newRobots[i]++;
+
+                    State newState
+                    {
+                        current.resourcesOwned+current.robotsOwned-blueprint.costs[i],
+                        newRobots,
+                        current.timeLeft-1
+                    };
+
+                    fringe.push(newState);
+            
+                }
+            }
+        }
+    }
+
+    
+    result = 
+    {
+        blueprint.id,
+        bestGeodes,
+        stopwatch.seconds(),
+        longestFringe
+    };
 }
+catch(std::exception const &e)
+{
+    print("{}",e.what());
+}
+
+
 
 int main()
 try
@@ -70,7 +225,38 @@ try
     auto const blueprints{readBlueprints()};
 
 
-    auto geodes = evaluateBlueprint(blueprints[0]);
+    
+
+    for(auto const &blueprint : blueprints)
+    {
+        Result  result;
+        evaluateBlueprint(blueprint,result);
+        print("{} : {} in {} seconds  fringe = {}\n",result.id, result.geodes, result.time, result.longestFringe);
+    }
+
+
+
+
+/*
+    std::vector<std::thread>    threads(blueprints.size());   
+    std::vector<Result>         results(blueprints.size());   
+
+
+    for(int i=0;i<blueprints.size();i++)
+    {
+        threads[i] = std::thread{evaluateBlueprint, std::cref(blueprints[i]),std::ref(results[i])};
+    }
+
+    for(auto &thread : threads)
+    {
+        thread.join();
+    }
+
+    for(auto &result : results)
+    {
+        print("{} : {} in {} seconds\n",result.id, result.geodes, result.time);
+    }
+*/
 
 
 }

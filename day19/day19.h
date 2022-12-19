@@ -3,7 +3,7 @@
 #include <array>
 #include "include/hash.h"
 
-enum class Resource
+enum Resource
 {
     ore,clay,obsidian, geode
 };
@@ -18,6 +18,9 @@ struct Blueprint
 {
     int                 id;
     std::array<Cost,4>  costs;
+
+    Robots              maxRobotsNeeded;
+
 };
 
 
@@ -26,6 +29,9 @@ struct State
     Resources   resourcesOwned;
     Robots      robotsOwned;
     int         timeLeft;
+
+    friend bool operator==(State const&,State const&)=default;
+
 };
 
 
@@ -40,6 +46,7 @@ struct std::hash<State>
         hash_combine(hash, state.resourcesOwned);
         hash_combine(hash, state.robotsOwned);
         hash_combine(hash, state.timeLeft);
+        return hash;
     }
 };
 
