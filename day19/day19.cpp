@@ -55,25 +55,25 @@ auto readBlueprints()
 
 
 
-// Next state
-//
-//  increment resources 
 
-//  for each robot type
-//          buy a robot if you can     (one at a time)
-//      or  don't buy a robot
-//  decrement time
-
-
-
-
-int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &skippedPreviously)
+int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &skippedPreviously, bool earlyQuit)
 {
 
     if(currentState.timeLeft == 0)
     {
         return currentState.resourcesOwned[Resource::geode];
     }
+
+
+    // tuned to my input   decrease time for worst blueprint from 40s to 10s
+    // TODO : is there a way to predict whether another geode robot can be built in the time remaining?
+    if(   earlyQuit
+       && currentState.timeLeft == 6        
+       && currentState.resourcesOwned[Resource::geode] == 0)
+    {
+        return 0;
+    }
+
 
 
     int  bestResult{};
@@ -92,7 +92,9 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
             currentState.timeLeft-1
         };
 
-        return makeGeodes(blueprint,newState,{});
+        return makeGeodes(blueprint,newState,{},earlyQuit);
+
+        // don't try any other options.
     }
 
 
@@ -127,15 +129,11 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
                 currentState.timeLeft-1
             };
 
-            bestResult = std::max(bestResult, makeGeodes(blueprint, newState,{})); 
-            
+            bestResult = std::max(bestResult, makeGeodes(blueprint, newState,{},earlyQuit)); 
         }
     }
 
-
-
-
-    // try waiting
+    // try waiting to save up resources
     {
         State newState
         {
@@ -144,10 +142,8 @@ int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &
             currentState.timeLeft-1
         };
 
-        bestResult = std::max(bestResult, makeGeodes(blueprint, newState, buildable)); 
+        bestResult = std::max(bestResult, makeGeodes(blueprint, newState, buildable,earlyQuit));          // and skip building robots we could've built this minute
     }
-
-
 
 
     return bestResult;
@@ -162,13 +158,13 @@ struct Result
     double  time;
 };
 
-void evaluateBlueprint(int time, Blueprint const &blueprint,  Result  &result)
+void evaluateBlueprint(int time, Blueprint const &blueprint,  Result  &result,bool earlyQuit)
 try
 {
     stopwatch       stopwatch;
     State           initialState{ {0,0,0,0}, {1,0,0,0}, time};
 
-    auto geodes = makeGeodes(blueprint, initialState,{});
+    auto geodes = makeGeodes(blueprint, initialState,{},earlyQuit);
 
     result = 
     {
@@ -192,7 +188,7 @@ void part1(std::vector<Blueprint> const &blueprints)
 
     for(int i=0;i<blueprints.size();i++)
     {
-        threads[i] = std::thread{evaluateBlueprint, 24, std::cref(blueprints[i]),std::ref(results[i])};
+        threads[i] = std::thread{evaluateBlueprint, 24, std::cref(blueprints[i]),std::ref(results[i]),false};
     }
 
     for(auto &thread : threads)
@@ -202,7 +198,7 @@ void part1(std::vector<Blueprint> const &blueprints)
 
     for(auto &result : results)
     {
-        print("{:2} : {:2} in {} seconds\n",result.id, result.geodes, result.time);
+        print("  {:2} : {:2} geodes   (in {:<4.1} seconds)\n",result.id, result.geodes, result.time);
     }
 
 
@@ -217,7 +213,7 @@ void part1(std::vector<Blueprint> const &blueprints)
 }
 
 
-// only 3 blueprints
+// only 3 blueprints but more time
 void part2(std::vector<Blueprint> const &blueprints)
 {
     std::vector<std::thread>    threads(3);   
@@ -226,7 +222,7 @@ void part2(std::vector<Blueprint> const &blueprints)
 
     for(int i=0;i<3;i++)
     {
-        threads[i] = std::thread{evaluateBlueprint, 32, std::cref(blueprints[i]),std::ref(results[i])};
+        threads[i] = std::thread{evaluateBlueprint, 32, std::cref(blueprints[i]),std::ref(results[i]),true};
     }
 
     for(auto &thread : threads)
@@ -236,7 +232,7 @@ void part2(std::vector<Blueprint> const &blueprints)
 
     for(auto &result : results)
     {
-        print("{:2} : {:2} in {} seconds\n",result.id, result.geodes, result.time);
+        print("  {:2} : {:2} geodes   (in {:<4.1f} seconds)\n",result.id, result.geodes, result.time);
     }
 
 
