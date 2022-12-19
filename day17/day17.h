@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "include/hash.h"
 
 /*
     uint8_t represents a row on the board. Set bits are rock. Clear bits are air.
@@ -133,9 +134,13 @@ struct std::hash<StateKey>
 {
     size_t operator()(const StateKey &state) const
     {
-        return   std::hash<uint32_t>{}(state.top4Rows)
-               ^ std::hash<size_t>{}(state.dropperPos)
-               ^ std::hash<size_t>{}(state.jetsPos);
+        size_t  hash{};
+
+        hash_combine(hash, state.top4Rows);
+        hash_combine(hash, state.dropperPos);
+        hash_combine(hash, state.jetsPos);
+
+        return hash;
     }
 };
 

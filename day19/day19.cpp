@@ -2,51 +2,21 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/stringstuff.h"
+#include "include/hash.h"
 
 #include <array>
 #include <vector>
+#include <unordered_set>
 
-enum class Resource
-{
-    ore,clay,obsidian, geode
-};
-
-using Cost      = std::array<int,4>;
-using Resources = std::array<int,4>;
-using Robots    = std::array<int,4>;
+#include "day19.h"
 
 
-struct Blueprint
-{
-    int     id;
-    Cost    oreRobot;
-    Cost    clayRobot;
-    Cost    obsidianRobot;
-    Cost    geodeRobot;
-};
-
-
-struct State
-{
-    Resources   resourcesOwned;
-    Robots      robotsOwned;
-
-    int         timeLeft;
-};
-
-// Next state
-//
-//  for each robot type
-//          buy a robot if you can
-//      or  don't buy a robot
-//  increment resources (based on old robot count)
-//  decrement time
 
 auto readBlueprints()
 {
     std::vector<Blueprint>      blueprints;
     
-    for(auto const &line : getDataLines())
+    for(auto const &line : getDataLines(TestData{}))
     {
         auto regex=R"(Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.)";
 
@@ -54,11 +24,13 @@ auto readBlueprints()
 
         Blueprint   blueprint
         {
-            numbers[0],                 // id
-            {numbers[1]},               // oreRobot
-            {numbers[2]},               // clayRobot
-            {numbers[3],numbers[4]},    // obsidianRobot
-            {numbers[5],0,numbers[6]},  // geodeRobot
+            numbers[0],                     // id
+            {{
+                {numbers[1]},               // oreRobot
+                {numbers[2]},               // clayRobot
+                {numbers[3],numbers[4]},    // obsidianRobot
+                {numbers[5],0,numbers[6]},  // geodeRobot
+            }}
         };
 
         blueprints.push_back(blueprint);
@@ -69,9 +41,37 @@ auto readBlueprints()
 
 
 
+// Next state
+//
+//  for each robot type
+//          buy a robot if you can     (one at a time)
+//      or  don't buy a robot
+//  increment resources (based on old robot count)
+//  decrement time
+
+
+
+int evaluateBlueprint(Blueprint const &blueprint)
+{
+    State   initialState{ {0,0,0,0}, {1,0,0,0}, 24};
+
+    int     bestGeodes{};
+
+
+    std::unordered_set<State>     visitedStates;
+
+
+    return bestGeodes;
+}
+
 int main()
 try
 {
+    auto const blueprints{readBlueprints()};
+
+
+    auto geodes = evaluateBlueprint(blueprints[0]);
+
 
 }
 catch(std::exception const &e)
