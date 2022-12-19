@@ -11,9 +11,9 @@ enum class Resource
     ore,clay,obsidian, geode
 };
 
-using Cost   =std::array<int,4>;
-using Owned  =std::array<int,4>;
-using Robots =std::array<int,4>;
+using Cost      = std::array<int,4>;
+using Resources = std::array<int,4>;
+using Robots    = std::array<int,4>;
 
 
 struct Blueprint
@@ -25,6 +25,22 @@ struct Blueprint
     Cost    geodeRobot;
 };
 
+
+struct State
+{
+    Resources   resourcesOwned;
+    Robots      robotsOwned;
+
+    int         timeLeft;
+};
+
+// Next state
+//
+//  for each robot type
+//          buy a robot if you can
+//      or  don't buy a robot
+//  increment resources (based on old robot count)
+//  decrement time
 
 auto readBlueprints()
 {
@@ -50,6 +66,8 @@ auto readBlueprints()
 
     return blueprints;
 }
+
+
 
 int main()
 try
