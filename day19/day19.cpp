@@ -67,7 +67,7 @@ auto readBlueprints()
 
 
 
-int makeGeodes(Blueprint const &blueprint, State  currentState)
+int makeGeodes(Blueprint const &blueprint, State  currentState,  Robots  const &skippedPreviously)
 {
 
     if(currentState.timeLeft == 0)
@@ -92,9 +92,11 @@ int makeGeodes(Blueprint const &blueprint, State  currentState)
             currentState.timeLeft-1
         };
 
-        return makeGeodes(blueprint,newState);
+        return makeGeodes(blueprint,newState,{});
     }
 
+
+    Robots  buildable{};
 
     // try other robots
     for(int i=0;i<3;i++)
@@ -104,9 +106,17 @@ int makeGeodes(Blueprint const &blueprint, State  currentState)
             // not worth it
             continue;
         }
+
+        if(skippedPreviously[i])
+        {
+            // silly to wait a minute just to build it now
+            continue;
+        }
                 
         if( currentState.resourcesOwned >= blueprint.costs[i])
         {
+            buildable[i]=true;
+
             Robots newRobots{currentState.robotsOwned};
             newRobots[i]++;
 
@@ -117,7 +127,7 @@ int makeGeodes(Blueprint const &blueprint, State  currentState)
                 currentState.timeLeft-1
             };
 
-            bestResult = std::max(bestResult, makeGeodes(blueprint, newState)); 
+            bestResult = std::max(bestResult, makeGeodes(blueprint, newState,{})); 
             
         }
     }
@@ -134,7 +144,7 @@ int makeGeodes(Blueprint const &blueprint, State  currentState)
             currentState.timeLeft-1
         };
 
-        bestResult = std::max(bestResult, makeGeodes(blueprint, newState)); 
+        bestResult = std::max(bestResult, makeGeodes(blueprint, newState, buildable)); 
     }
 
 
@@ -152,13 +162,13 @@ struct Result
     double  time;
 };
 
-void evaluateBlueprint(Blueprint const &blueprint,  Result  &result)
+void evaluateBlueprint(int time, Blueprint const &blueprint,  Result  &result)
 try
 {
     stopwatch       stopwatch;
-    State           initialState{ {0,0,0,0}, {1,0,0,0}, 24};
+    State           initialState{ {0,0,0,0}, {1,0,0,0}, time};
 
-    auto geodes = makeGeodes(blueprint, initialState);
+    auto geodes = makeGeodes(blueprint, initialState,{});
 
     result = 
     {
@@ -174,31 +184,15 @@ catch(std::exception const &e)
 }
 
 
-int main()
-try
+void part1(std::vector<Blueprint> const &blueprints)
 {
-    auto const blueprints{readBlueprints()};
-
-
-    
-/*
-    for(auto const &blueprint : blueprints)
-    {
-        Result  result;
-        evaluateBlueprint(blueprint,result);
-        print("{} : {} in {} seconds.\n",result.id, result.geodes, result.time);
-    }
-*/
-
-
-
     std::vector<std::thread>    threads(blueprints.size());   
     std::vector<Result>         results(blueprints.size());   
 
 
     for(int i=0;i<blueprints.size();i++)
     {
-        threads[i] = std::thread{evaluateBlueprint, std::cref(blueprints[i]),std::ref(results[i])};
+        threads[i] = std::thread{evaluateBlueprint, 24, std::cref(blueprints[i]),std::ref(results[i])};
     }
 
     for(auto &thread : threads)
@@ -208,7 +202,7 @@ try
 
     for(auto &result : results)
     {
-        print("{} : {} in {} seconds\n",result.id, result.geodes, result.time);
+        print("{:2} : {:2} in {} seconds\n",result.id, result.geodes, result.time);
     }
 
 
@@ -219,6 +213,54 @@ try
                                  });
 
     print("Part 1 : {}\n",part1);
+
+}
+
+
+// only 3 blueprints
+void part2(std::vector<Blueprint> const &blueprints)
+{
+    std::vector<std::thread>    threads(3);   
+    std::vector<Result>         results(3);   
+
+
+    for(int i=0;i<3;i++)
+    {
+        threads[i] = std::thread{evaluateBlueprint, 32, std::cref(blueprints[i]),std::ref(results[i])};
+    }
+
+    for(auto &thread : threads)
+    {
+        thread.join();
+    }
+
+    for(auto &result : results)
+    {
+        print("{:2} : {:2} in {} seconds\n",result.id, result.geodes, result.time);
+    }
+
+
+    auto part2 = std::accumulate(results.begin(), results.end(), 1,
+                                 [](int accumulator, Result const &result)
+                                 {
+                                    return accumulator * result.geodes;
+                                 });
+
+    print("Part 2 : {}\n",part2);
+
+}
+
+
+
+int main()
+try
+{
+    auto blueprints{readBlueprints()};
+
+
+    part1(blueprints);        
+    part2(blueprints);        
+
 
 }
 catch(std::exception const &e)
