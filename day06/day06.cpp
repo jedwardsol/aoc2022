@@ -11,8 +11,8 @@
 
 
 
-// work back from end of packet.  If dupe is found,  tell findMarker it can move forward until
-// the 1st part of the dupe falls off the beginning.
+// work back from end of candidate  marker.  
+// If duplicate character is found,  tell findMarker it can move forward enough such the duplicate char is dropped
 
 int calcIncrement_loop(std::string_view marker)
 {
@@ -89,7 +89,7 @@ try
 
     auto const startOfPacket = findMarker<4>(data);
 
-    print("Part 1 : {}\n",startOfPacket);
+    print("Part 1 : {} {}\n",startOfPacket, data.substr(startOfPacket-4,4));
 
     stopwatch  stopwatch;
 
