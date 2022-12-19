@@ -8,7 +8,6 @@
 
         |6543210|
 
-
     uint32_t represents a falling rock.  LSB lowest  (will break on bigendian computer)
 
 */
@@ -70,10 +69,79 @@ struct Jets
 
     auto puff()
     {
-        return jets[ (pos++) % jets.size()];
+        return jets[ (index++) % jets.size()];
+    }
+
+    auto size() const
+    {
+        return jets.size();
+    }
+
+    auto pos() const
+    {
+        return index % jets.size();
     }
 
 private:
-    int          pos{};
+    int          index{};
     std::string  jets;
 };
+
+
+struct RockDropper
+{
+    RockDropper()
+    {}
+
+    auto drop()
+    {
+        return rocks[ (index++) % rocks.size()];
+    }
+
+    auto size() const
+    {
+        return rocks.size();
+    }
+
+    auto pos() const
+    {
+        return index % rocks.size();
+    }
+
+
+private:
+    int                 index{};
+    std::array<Rock,5>  rocks{horizontal,cross,corner,vertical,square};
+};
+
+
+// Cycle detection
+
+
+struct StateKey
+{
+    uint32_t    top4Rows;
+    size_t      dropperPos;
+    size_t      jetsPos;
+
+    friend bool operator==(StateKey const&,StateKey const&)=default;
+
+};
+
+template <> 
+struct std::hash<StateKey>
+{
+    size_t operator()(const StateKey &state) const
+    {
+        return   std::hash<uint32_t>{}(state.top4Rows)
+               ^ std::hash<size_t>{}(state.dropperPos)
+               ^ std::hash<size_t>{}(state.jetsPos);
+    }
+};
+
+struct StateValue
+{
+    int64_t     rocksDropped;
+    int64_t     height;
+};
+

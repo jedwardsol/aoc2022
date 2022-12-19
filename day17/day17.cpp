@@ -3,11 +3,10 @@
 #include "include/getdata.h"
 #include <ranges>
 #include <array>
+#include <numeric>
+#include <unordered_map>
 
 #include "day17.h"
-
-
-std::array<Rock,5> rocks{horizontal,cross,corner,vertical,square};
 
 
 
@@ -15,7 +14,7 @@ void printTower(Tower const &tower)
 {
     for(auto c : tower | std::views::reverse)
     {
-        std::string row(7,'.');
+        std::string row(7,' ');
         for(int bit=0;bit<7;bit++) 
         {
             if(c & (1<<bit))
@@ -26,18 +25,7 @@ void printTower(Tower const &tower)
         print("|{}|\n",row);
     }
 
-    print("|=======| {} rows\n\n",tower.height());
-}
-
-void printReferenceTower()
-{
-    Tower   tower;
-
-    for(auto rock : rocks)
-    {
-        tower.row(0)=rock;
-        printTower(tower);  
-    }
+    print("|=======|\n\n");
 }
 
 
@@ -52,9 +40,9 @@ void drop(Tower &tower, Jets &jets, Rock rock)
 
         if(jets.puff() == '>')
         {
-            if (!(rock & rightEdge))    // will it hit edge
+            if (!(rock & rightEdge))                        // will it hit edge
             {
-                if (!((rock >> 1) & tower.row(rockPos)))   // will it hit another piece
+                if (!((rock >> 1) & tower.row(rockPos)))    // will it hit another piece
                 {
                     rock>>=1;
                 }
@@ -62,9 +50,9 @@ void drop(Tower &tower, Jets &jets, Rock rock)
         }
         else
         {
-            if (!(rock & leftEdge))    // will it hit edge
+            if (!(rock & leftEdge))                         // will it hit edge
             {
-                if (!((rock << 1) & tower.row(rockPos)))   // will it hit another piece
+                if (!((rock << 1) & tower.row(rockPos)))    // will it hit another piece
                 {
                     rock <<= 1;
                 }
@@ -82,25 +70,67 @@ void drop(Tower &tower, Jets &jets, Rock rock)
     }
 
     tower.row(rockPos) |= rock;
-
 }
+
+
 
 
 int main()
 try
 {
-    Jets  jets{getDataLine()};
-    Tower tower;
 
-    for(int i=0;i<2022;i++)
+    RockDropper                             dropper;
+    Jets                                    jets{getDataLine()};
+    Tower                                   tower;
+
+    bool                                    detecting{false};
+    std::unordered_map<StateKey,StateValue> stateCache;
+
+    constexpr int64_t                       totalRocks{1'000'000'000'000};
+    
+    int64_t                                 rocksSkipped{};
+
+
+    for(int64_t i=0;i<totalRocks;i++)
     {
-        drop(tower,jets,rocks[i%5]);
+        drop(tower,jets,dropper.drop());
+
+        if(i==2021)
+        {
+            print("Part 1 : {}\n",tower.height());
+            detecting=true;
+        }
+
+        if(detecting)
+        {
+            StateKey    key{ tower.row(tower.height()-4), dropper.pos(), jets.pos() };
+
+            if(stateCache.contains(key))
+            {
+                detecting=false;
+
+                auto const  &value = stateCache[key];
+                auto const   rockPeriod      = i-stateCache[key].rocksDropped;
+                auto const   heightGrowth    = tower.height()-stateCache[key].height;
+
+                print(" Cycle detected with period {} rocks\n", rockPeriod     );
+
+                auto const  rocksRemaining = totalRocks-i;
+                auto const  cyclesSkipped  = rocksRemaining / rockPeriod;
+
+                i           += cyclesSkipped*rockPeriod;
+                rocksSkipped = cyclesSkipped*heightGrowth;
+
+                print(" Skipping {} cycles = skipping {} rocks\n", cyclesSkipped, rocksSkipped);
+            }
+            else
+            {
+                stateCache[key] = { i, tower.height() };    
+            }
+        }
     }
 
-//  printTower(tower);
-
-    print("Part 1 : {}\n",tower.height());
-
+    print("Part 2 : {}\n",tower.height() + rocksSkipped);
 }
 catch(std::exception const &e)
 {
@@ -113,3 +143,5 @@ catch(std::exception const &e)
 // --------------------------
 std::istringstream testInput{
 R"(>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>)"};
+
+
