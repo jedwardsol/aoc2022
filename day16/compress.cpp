@@ -3,11 +3,11 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/stringstuff.h"
+#include "include/constants.h"
 
 #include <queue>
 #include <numeric>
 
-constexpr auto farAway = std::numeric_limits<int>::max();
 
 #include "day16.h"
 

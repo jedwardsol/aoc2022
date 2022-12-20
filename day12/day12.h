@@ -1,10 +1,11 @@
 #pragma once
 
 #include "include/posVector-RC.h"
+#include "include/constants.h"
+
 #include <numeric>
 
 
-constexpr auto farAway = std::numeric_limits<int>::max();
 
 
 

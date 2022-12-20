@@ -2,6 +2,9 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
+#include "include/constants.h"
+
+
 #include <set>
 #include <fstream>
 #include <iterator>
@@ -10,10 +13,7 @@
 #include <queue>
 #include <cassert>
 
-extern std::istringstream testInput;
 
-
-constexpr auto farAway = std::numeric_limits<int>::max();
 
 struct Pos
 {
