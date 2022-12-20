@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -110,7 +111,7 @@ try
 {
     moveRope<2>();
     moveRope<10>();
-    moveRope<10000>();
+//  moveRope<10000>();
 
 }
 catch(std::exception const &e)

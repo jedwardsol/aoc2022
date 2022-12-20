@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -31,11 +32,11 @@ try
     Pos         start{};
     Pos         end{};
 
-    for(int row=0;row<data.size();row++)
+    for(int row=0;row<static_cast<int>(data.size());row++)
     {
         auto &line = data[row];
 
-        for(int column=0;column<line.size();column++)
+        for(int column=0;column<static_cast<int>(line.size());column++)
         {
             auto c = line[column];
 

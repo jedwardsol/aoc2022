@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -61,9 +62,9 @@ int calcIncrement_set(std::string_view marker)
 
 
 template<size_t MarkerSize>
-int findMarker(std::string const &data)
+size_t findMarker(std::string const &data)
 {
-    int pos{};
+    size_t pos{};
     
     while(pos < data.size()-MarkerSize)
     {

@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -29,8 +30,7 @@ ValveState explore( Valves         &valves,
 
     auto   bestState= valveState;
 
-//    for(auto &neighbour : current.neighbours)
-    for(int i = 0;i<current.neighbours.size();i++)
+    for(size_t i = 0;i<current.neighbours.size();i++)
     {
         auto &neighbour = current.neighbours[i];
 

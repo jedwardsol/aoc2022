@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -62,8 +63,9 @@ int main()
 try
 {
     std::set<Pos>   droplet;
-    std::ifstream   file{ getDataFile() };
-    std::copy(std::istream_iterator<Pos>{file}, {}, std::inserter(droplet, droplet.end()));
+    auto            stream{ getDataStream() };
+
+    std::copy(std::istream_iterator<Pos>{stream}, {}, std::inserter(droplet, droplet.end()));
 
     int part1SurfaceArea{};
     Box boundingBox;

@@ -1,3 +1,4 @@
+#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
@@ -10,13 +11,13 @@
 
 struct File
 {
-    int64_t     size;
+    int64_t     size{};
 };
 
 struct Directory
 {
-    int64_t     fileSize;
-    int64_t     totalSize;
+    int64_t     fileSize{};
+    int64_t     totalSize{};
 
     std::map<std::string,File>           files;                                 // never need the name
     std::map<std::string,Directory>      subdirectories;                        // only need the name when parsing input

@@ -11,6 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "day02", "day02\day02.vcxpro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{299204F8-3B96-4EAD-B612-F68AA0B71694}"
 	ProjectSection(SolutionItems) = preProject
+		include\codeAnalysis.h = include\codeAnalysis.h
 		include\getdata.h = include\getdata.h
 		include\hash.h = include\hash.h
 		include\posVector-RC.h = include\posVector-RC.h
