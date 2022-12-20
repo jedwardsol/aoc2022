@@ -9,8 +9,6 @@
 
 #include "day17.h"
 
-
-
 void printTower(Tower const &tower)
 {
     for(auto c : tower | std::views::reverse)

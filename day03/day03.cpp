@@ -37,8 +37,6 @@ std::set<char> intersection(std::set<char> const &one,std::set<char> const &two)
 int main()
 try
 {
-
-
     auto rucksacks = getDataLines();
 
     int part1Total{};    // common item between 1st and 2nd half of each line

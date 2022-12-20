@@ -16,11 +16,7 @@
   |
   +----x
 
-
 */
-
-
-
 
 
 std::map<char,Vector> move
@@ -30,7 +26,6 @@ std::map<char,Vector> move
     {'U', { 0,+1}},
     {'D', { 0,-1}},
 };
-
 
 /*
    P9ABM

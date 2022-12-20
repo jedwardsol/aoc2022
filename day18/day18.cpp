@@ -13,9 +13,6 @@
 #include <queue>
 #include <cassert>
 
-
-
-
 std::istream& operator>>(std::istream& in, Pos& pos)
 {
     char comma;
