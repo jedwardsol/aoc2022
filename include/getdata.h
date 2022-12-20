@@ -99,3 +99,37 @@ extern std::istringstream testInput;
 }
 
 
+
+
+///--- As a vector of ints
+
+[[nodiscard]] inline auto getDataInts(TestData)
+{
+    auto lines = getDataLines(TestData{});
+
+    std::vector<int> data;
+
+    for(auto const &line : lines)
+    {
+        data.push_back(std::stoi(line));
+    }
+
+    return data;
+}
+
+
+[[nodiscard]] inline auto getDataInts(std::source_location const &sourceLocation = std::source_location::current())
+{
+    auto lines = getDataLines(sourceLocation);
+
+    std::vector<int> data;
+
+    for(auto const &line : lines)
+    {
+        data.push_back(std::stoi(line));
+    }
+
+    return data;
+
+}
+
