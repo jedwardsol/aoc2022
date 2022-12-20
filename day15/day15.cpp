@@ -216,6 +216,8 @@ Pos doPart2Clever(std::vector<Sensor> const &sensors)
 
             auto gap           = distanceApart-radiiSum;
 
+            // find the right-hand border of the sensor diamond on the left-most of the 2 sensors
+            // won't work if the 2 sensors are directly above each other
             if(gap == 2 )
             {
                 if(first.sensor.x < second.sensor.x)

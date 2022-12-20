@@ -3,7 +3,7 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/constants.h"
-
+#include "include/posVector-XYZ.h"
 
 #include <set>
 #include <fstream>
@@ -15,12 +15,6 @@
 
 
 
-struct Pos
-{
-    int x, y, z;
-
-    friend auto operator<=>(Pos const&, Pos const&) = default;
-};
 
 std::istream& operator>>(std::istream& in, Pos& pos)
 {

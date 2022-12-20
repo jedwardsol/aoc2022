@@ -79,7 +79,6 @@ void drop(Tower &tower, Jets &jets, Rock rock)
 int main()
 try
 {
-
     RockDropper                             dropper;
     Jets                                    jets{getDataLine()};
     Tower                                   tower;

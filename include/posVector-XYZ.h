@@ -4,11 +4,13 @@ struct Vector
 {
     int dx{};
     int dy{};
+    int dz{};
 
     Vector  &operator+=(Vector const &rhs)
     {
         dx+=rhs.dx;
         dy+=rhs.dy;
+        dz+=rhs.dz;
         return *this;
     }
 
@@ -16,6 +18,7 @@ struct Vector
     {
         dx-=rhs.dx;
         dy-=rhs.dy;
+        dz-=rhs.dz;
         return *this;
     }
 
@@ -27,13 +30,15 @@ struct Vector
 
 struct Pos
 {
-    int x{};
-    int y{};
+    int x{};                             
+    int y{};                             
+    int z{};                             
 
     Pos  &operator+=(Vector const &rhs)
     {
         x+=rhs.dx;
         y+=rhs.dy;
+        z+=rhs.dz;
         return *this;
     }
 
@@ -41,6 +46,7 @@ struct Pos
     {
         x-=rhs.dx;
         y-=rhs.dy;
+        z-=rhs.dz;
         return *this;
     }
 
@@ -71,7 +77,6 @@ Pos operator-(Pos  lhs,Vector const &rhs)
     return lhs-=rhs;
 }
 
-
 Pos operator+(Vector const &lhs,Pos rhs)
 {
     return rhs+=lhs;
@@ -79,6 +84,5 @@ Pos operator+(Vector const &lhs,Pos rhs)
 
 Vector operator-(Pos const &lhs,Pos const &rhs)
 {
-    return {lhs.x-rhs.x,lhs.y-rhs.y};
+    return {lhs.x-rhs.x,lhs.y-rhs.y, lhs.z-rhs.z};
 }
-

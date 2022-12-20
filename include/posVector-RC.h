@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <span>
 
 struct Vector
 {
@@ -88,7 +86,8 @@ inline Vector operator-(Pos const &lhs,Pos const &rhs)
     return {lhs.row-rhs.row,lhs.col-rhs.col};
 }
 
-
+#include <vector>
+#include <span>
 
 template<typename T>
 struct Grid
