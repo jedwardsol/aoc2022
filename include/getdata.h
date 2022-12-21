@@ -11,6 +11,7 @@ namespace fs=std::filesystem;
 
 
 struct TestData{};
+using TestInput=TestData;
 extern std::istringstream testInput;
 
 
