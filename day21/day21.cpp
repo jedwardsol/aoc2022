@@ -44,9 +44,21 @@ struct Troop
         }
 
         return monkey.value;
-
     }
 
+    void reset(int64_t  humn)
+    {
+        for(auto &[_,monkey] : troop)
+        {
+            if(monkey.op)
+            {
+                monkey.evaluated=false;
+            }
+        }
+
+        troop["humn"].value = humn;
+
+    }
 
     std::map<std::string,Monkey>    troop;
 };
@@ -94,10 +106,32 @@ try
     }
 
     stopwatch stopwatch;
-
     auto part1=troop.evaluate("root");
 
     print("Part 1 : {} in {} us\n", part1,stopwatch.microseconds());     // Part 1 : 43699799094202 in 345.1 us
+
+
+    troop.troop["root"].op = std::equal_to<int64_t>{};
+
+
+    stopwatch.reset();
+
+    troop.reset(0);
+
+    auto part2=troop.evaluate("root");
+    print("{} {}\n", troop.troop[troop.troop["root"].lhs].value,
+                     troop.troop[troop.troop["root"].rhs].value);
+
+
+    troop.reset(30974319009386/2);
+    part2=troop.evaluate("root");
+    print("{} {}\n", troop.troop[troop.troop["root"].lhs].value,
+                     troop.troop[troop.troop["root"].rhs].value);
+
+
+    // root.rhs varies
+
+
 
 }
 catch(std::exception const &e)

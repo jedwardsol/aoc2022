@@ -11,6 +11,11 @@ public:
     {
     }
 
+    void reset()
+    {
+        start=Clock::now();
+    }
+
     double microseconds()
     {
         std::chrono::duration<double, std::micro>   duration{Clock::now()-start};
