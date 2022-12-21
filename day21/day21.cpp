@@ -46,6 +46,8 @@ struct Troop
         return monkey.value;
     }
 
+    // if resetting everything were slow,  then could be clever and
+    // only reset Monkeys that are dependent on humn
     void reset(int64_t  humn)
     {
         for(auto &[_,monkey] : troop)
@@ -57,7 +59,6 @@ struct Troop
         }
 
         troop["humn"].value = humn;
-
     }
 
     std::map<std::string,Monkey>    troop;
@@ -110,23 +111,35 @@ try
 
     print("Part 1 : {} in {} us\n", part1,stopwatch.microseconds());     // Part 1 : 43699799094202 in 345.1 us
 
-
-    troop.troop["root"].op = std::equal_to<int64_t>{};
-
+    ///////////
 
     stopwatch.reset();
 
-    troop.reset(0);
+    // root 
+    troop.troop["root"].op = std::equal_to<int64_t>{};
 
-    auto part2=troop.evaluate("root");
-    print("{} {}\n", troop.troop[troop.troop["root"].lhs].value,
-                     troop.troop[troop.troop["root"].rhs].value);
+    // empirically,  root's RHS is constant and root LHS is dependent on humn
+    auto const lhsTarget = troop.troop[troop.troop["root"].rhs].value;
+
+    print(" LHS target = {} \n", lhsTarget);
 
 
-    troop.reset(30974319009386/2);
-    part2=troop.evaluate("root");
-    print("{} {}\n", troop.troop[troop.troop["root"].lhs].value,
-                     troop.troop[troop.troop["root"].rhs].value);
+
+
+
+    auto someBigNumber = std::numeric_limits<int64_t>::max()/500;
+
+    for(auto i = -someBigNumber;i<=someBigNumber;i+=someBigNumber)
+    {
+        troop.reset(i);
+
+        auto part2=troop.evaluate("root");
+
+        auto diff = lhsTarget - troop.troop[troop.troop["root"].lhs].value;
+
+        print(" {:20} => {:20}\n", i,diff);
+
+    }
 
 
     // root.rhs varies
