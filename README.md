@@ -38,7 +38,7 @@ Day 18 : Surface of a sphere
 
 Day 19 : Building geode robots
 
-Day 20 : 
+Day 20 : moving numbers in a circular list
 
 Day 21 : 
 
