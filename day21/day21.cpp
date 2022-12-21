@@ -6,7 +6,7 @@
 #include "include/stopwatch.h"
 
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <compare>
 
 
@@ -92,7 +92,7 @@ struct Troop
         troop["humn"].value = humn;
     }
 
-    std::map<std::string,Monkey>    troop;
+    std::unordered_map<std::string,Monkey>    troop;
 };
 
 int main()
@@ -140,7 +140,7 @@ try
     stopwatch stopwatch;
     auto part1=troop.evaluate("root");
 
-    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 241.3 us
+    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 52.1 us
 
     ///////////
     // part 2
@@ -200,7 +200,7 @@ try
     }
     humn++;
 
-    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 18.0717 ms
+    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 3.8328 ms
 
 }
 catch(std::exception const &e)
