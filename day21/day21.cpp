@@ -58,7 +58,7 @@ struct Monkey
     Monkey(int64_t  value) : evaluated{true}, value{value}
     {}
     
-    Monkey(std::string_view lhs, Op op, std::string_view rhs) : lhs{lhs},op{op},rhs{rhs}
+    Monkey(std::string_view lhs, Op op, std::string_view rhs) : evaluated{false}, lhs{lhs},op{op},rhs{rhs}
     {}
 };
 
@@ -71,13 +71,16 @@ struct Troop
 
         if(!monkey.evaluated)
         {
+            // it turns out this optimisation is unnecessary.  Each monkey  is only
+            // ever asked to evaluate itself once.
             monkey.value = monkey.op(evaluate(monkey.lhs),evaluate(monkey.rhs));
+            monkey.evaluated=true;
         }
 
         return monkey.value;
     }
 
-    // if resetting everything were slow,  then could be clever and
+    // if resetting and reevaluating everything was slow,  then could be clever and
     // only reset Monkeys that are dependent on humn
     void reset(int64_t  humn)
     {
@@ -95,8 +98,8 @@ struct Troop
     std::unordered_map<std::string,Monkey>    troop;
 };
 
-int main()
-try
+
+auto readTroop()
 {
     Troop   troop;
 
@@ -137,19 +140,31 @@ try
         }
     }
 
+    return troop;
+}
+
+
+int main()
+try
+{
+    Troop   troop{readTroop()};
+
+
+///////////
+// part 1
+
     stopwatch stopwatch;
     auto part1=troop.evaluate("root");
 
-    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 52.1 us
+    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 49.4 us
 
-    ///////////
-    // part 2
+///////////
+// part 2
+
     stopwatch.reset();
 
     // change root's behaviour
     troop.troop["root"].op = compare_three_way<int64_t>{};
-
-
 
     auto eval = [&](int64_t humn)
     {
@@ -175,6 +190,8 @@ try
 
     // don't know whether there's a +ve or -ve correlation
     // so this may fail on different input and need the > changed to a <
+    // TODO : check whether slope of line us  / or \   by looking at eval(min) and eval(max)
+
 
     while(root != 0)
     {
@@ -200,7 +217,7 @@ try
     }
     humn++;
 
-    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 3.8328 ms
+    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 3.7463 ms
 
 }
 catch(std::exception const &e)
