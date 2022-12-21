@@ -40,7 +40,7 @@ Day 19 : Building geode robots
 
 Day 20 : moving numbers in a circular list
 
-Day 21 : 
+Day 21 : monkeys shouting numbers
 
 Day 22 : 
 
