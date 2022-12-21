@@ -15,6 +15,10 @@ struct Element
     Element *flink;
     Element *blink;
 
+    Element(int     index,int64_t value) : index{index},value{value},flink{this},blink{this}
+    {}
+
+
     void insertBefore(Element   *element)
     {
         element->flink=this;
@@ -33,7 +37,7 @@ Element *findIndex(Element *walk, int index)
     return walk;
 }
 
-Element *findValue(Element *walk, int64_t value)
+Element const *findValue(Element const *walk, int64_t value)
 {
     while(walk->value!=value)
     {
@@ -51,6 +55,7 @@ void print(Element const *walk)
         print("{:2} ",walk->value);
         walk=walk->flink;
     }while(walk!=end);
+    print("\n");
 }
 
 
@@ -62,7 +67,6 @@ auto decrypt(Element *head, int size)
         auto distance   = walk->value;
 
         distance %= (size-1);
-
 
         if(distance < 0)
         {
@@ -84,10 +88,15 @@ auto decrypt(Element *head, int size)
                 distance--;
             }
         }
+
+        print(head);
+
     }
+
+
 }
 
-int64_t calculateCoords(Element *head)
+int64_t calculateCoords(Element const *head)
 {
     auto walk = findValue(head,0);
 
@@ -106,41 +115,38 @@ int64_t calculateCoords(Element *head)
 }
 
 
-void part1(std::vector<int> &numbers)
+void part1(std::vector<int> const &numbers)
 {
-    Element  anchor{0, numbers[0], &anchor,&anchor};
-
-    Element *head(&anchor);
+    Element  head{0, numbers[0]};
 
     for(int i=1;i<numbers.size();i++)
     {
-        head->insertBefore(new Element{i,numbers[i]});
+        head.insertBefore(new Element{i,numbers[i]});
     }
 
-    decrypt(head,static_cast<int>(numbers.size()));
-    auto coords = calculateCoords(head);
+    print(&head);
+    decrypt(&head,static_cast<int>(numbers.size()));
+    auto coords = calculateCoords(&head);
 
     print("Part 1 : {}\n",coords);
 }
 
 
-void part2(std::vector<int> &numbers)
+void part2(std::vector<int> const &numbers)
 {
-    Element  anchor{0, numbers[0]*811589153ll, &anchor,&anchor};
-
-    Element *head(&anchor);
+    Element  head{0, numbers[0]*811589153ll};
 
     for(int i=1;i<numbers.size();i++)
     {
-        head->insertBefore(new Element{i,numbers[i]*811589153ll});
+        head.insertBefore(new Element{i,numbers[i]*811589153ll});
     }
 
     for(int i=0;i<10;i++)
     {
-        decrypt(head,static_cast<int>(numbers.size()));
+        decrypt(&head,static_cast<int>(numbers.size()));
     }
 
-    auto coords = calculateCoords(head);
+    auto coords = calculateCoords(&head);
 
     print("Part 2 : {}\n",coords);
 }

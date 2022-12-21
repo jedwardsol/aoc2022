@@ -7,9 +7,40 @@
 
 #include <functional>
 #include <map>
+#include <compare>
 
 
 using Op=std::function<int64_t(int64_t,int64_t)>;
+
+// std::compare_three_way exists but
+//   it is a struct with a templated operator(),   not a struct template
+//   it returns std::strong_ordering
+// so it isn't compatible with Op
+
+template <typename T>
+struct compare_three_way
+{
+    constexpr T operator()(const T& lhs, const T &rhs) const 
+    {
+        auto result = lhs <=> rhs;
+
+        if(result == std::strong_ordering::less)
+        {
+            return -1;
+        }
+        else if(result == std::strong_ordering::equal)
+        {
+            return 0;
+        }
+        else
+        {
+            return +1;
+        }
+    }
+};
+
+
+
 
 struct Monkey
 {
@@ -109,42 +140,67 @@ try
     stopwatch stopwatch;
     auto part1=troop.evaluate("root");
 
-    print("Part 1 : {} in {} us\n", part1,stopwatch.microseconds());     // Part 1 : 43699799094202 in 345.1 us
+    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 241.3 us
 
     ///////////
-
+    // part 2
     stopwatch.reset();
 
-    // root 
-    troop.troop["root"].op = std::equal_to<int64_t>{};
-
-    // empirically,  root's RHS is constant and root LHS is dependent on humn
-    auto const lhsTarget = troop.troop[troop.troop["root"].rhs].value;
-
-    print(" LHS target = {} \n", lhsTarget);
+    // change root's behaviour
+    troop.troop["root"].op = compare_three_way<int64_t>{};
 
 
 
-
-
-    auto someBigNumber = std::numeric_limits<int64_t>::max()/500;
-
-    for(auto i = -someBigNumber;i<=someBigNumber;i+=someBigNumber)
+    auto eval = [&](int64_t humn)
     {
-        troop.reset(i);
+        troop.reset(humn);
+        return troop.evaluate("root");
+    };
 
-        auto part2=troop.evaluate("root");
+    // search out from 0 until there is a change in sign between min and max.
+    auto max  =  10ll;
+    auto min  = -max;
 
-        auto diff = lhsTarget - troop.troop[troop.troop["root"].lhs].value;
-
-        print(" {:20} => {:20}\n", i,diff);
-
+    while( eval(min) == eval(max))
+    {
+        max *=10;
+        min = -max;
     }
 
 
-    // root.rhs varies
+    // the 0 must be in this rnage.    
+    // binary search in this range
+    auto humn =  0ll;
+    auto root = eval(humn);         // -1 less,  0 equal,  1 more
 
+    // don't know whether there's a +ve or -ve correlation
+    // so this may fail on different input and need the > changed to a <
 
+    while(root != 0)
+    {
+        if(root > 0)
+        {
+            min=humn;
+        }
+        else
+        {
+            max=humn;
+        }
+        humn=(min+max)/2;
+            
+        root = eval(humn);
+    }
+
+    // because of division,  there can be a range of numbers which result in equality
+    // return the lowest
+    while(root==0)
+    {
+        humn--;
+        root = eval(humn);
+    }
+    humn++;
+
+    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 18.0717 ms
 
 }
 catch(std::exception const &e)
