@@ -20,10 +20,15 @@ using Move = std::variant<int,TurnLeft,TurnRight>;
 
 struct Part1Grid 
 {
-    Part1Grid(std::vector<std::string> const &lines) : grid{static_cast<int>(lines[0].size()), static_cast<int>(lines.size())}
+    Part1Grid(std::vector<std::string> &lines) : grid{static_cast<int>(lines[0].size()), static_cast<int>(lines.size())}
     {
         for(auto row=0;row<grid.height; row++)
         {
+            if(lines[row].size() != grid.width)
+            {
+                lines[row].append(grid.width-lines[row].size(),' ');
+            }
+
             memcpy(grid[row].data(), lines[row].data(), grid.width);
         }
 
