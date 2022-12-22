@@ -9,8 +9,9 @@
 #include <unordered_map>
 #include <compare>
 
+using MonkeyType = int64_t;
 
-using Op=std::function<int64_t(int64_t,int64_t)>;
+using Op=std::function<MonkeyType(MonkeyType,MonkeyType)>;
 
 // std::compare_three_way exists but
 //   it is a struct with a templated operator(),   not a struct template
@@ -48,14 +49,14 @@ struct Monkey
     std::string         lhs;
     Op                  op;
     std::string         rhs;
-    int64_t             value{};
+    MonkeyType          value{};
 
     Monkey()
     {
         throw_runtime_error("default monkey");
     }
 
-    Monkey(int64_t  value) : evaluated{true}, value{value}
+    Monkey(MonkeyType  value) : evaluated{true}, value{value}
     {}
     
     Monkey(std::string_view lhs, Op op, std::string_view rhs) : evaluated{false}, lhs{lhs},op{op},rhs{rhs}
@@ -65,7 +66,7 @@ struct Monkey
 
 struct Troop
 {
-    int64_t     evaluate(std::string    const &monkeyName)
+    MonkeyType     evaluate(std::string    const &monkeyName)
     {
         auto  &monkey = troop[monkeyName];
 
@@ -82,7 +83,7 @@ struct Troop
 
     // if resetting and reevaluating everything was slow,  then could be clever and
     // only reset Monkeys that are dependent on humn
-    void reset(int64_t  humn)
+    void reset(MonkeyType  humn)
     {
         for(auto &[_,monkey] : troop)
         {
@@ -119,19 +120,19 @@ auto readTroop()
 
             if(strings[1]=="*")
             {
-                troop.troop.emplace(name,Monkey{strings[0], std::multiplies<int64_t>{}, strings[2]});
+                troop.troop.emplace(name,Monkey{strings[0], std::multiplies<MonkeyType>{}, strings[2]});
             }
             else if(strings[1]=="+")
             {
-                troop.troop.emplace(name,Monkey{strings[0], std::plus<int64_t>{}, strings[2]});
+                troop.troop.emplace(name,Monkey{strings[0], std::plus<MonkeyType>{}, strings[2]});
             }
             else if(strings[1]=="-")
             {
-                troop.troop.emplace(name,Monkey{strings[0], std::minus<int64_t>{}, strings[2]});
+                troop.troop.emplace(name,Monkey{strings[0], std::minus<MonkeyType>{}, strings[2]});
             }
             else if(strings[1]=="/")
             {
-                troop.troop.emplace(name,Monkey{strings[0], std::divides<int64_t>{}, strings[2]});
+                troop.troop.emplace(name,Monkey{strings[0], std::divides<MonkeyType>{}, strings[2]});
             }
             else
             {
@@ -156,7 +157,7 @@ try
     stopwatch stopwatch;
     auto part1=troop.evaluate("root");
 
-    print("Part 1 : {:15} in {} us\n", part1,stopwatch.microseconds());     // Part 1 :  43699799094202 in 49.4 us
+    print("Part 1 : {:15} in {} us\n", static_cast<int64_t>(part1),stopwatch.microseconds());     // Part 1 :  43699799094202 in 49.4 us
 
 ///////////
 // part 2
@@ -164,16 +165,16 @@ try
     stopwatch.reset();
 
     // change root's behaviour
-    troop.troop["root"].op = compare_three_way<int64_t>{};
+    troop.troop["root"].op = compare_three_way<MonkeyType>{};
 
-    auto eval = [&](int64_t humn)
+    auto eval = [&](MonkeyType humn)
     {
         troop.reset(humn);
         return troop.evaluate("root");
     };
 
     // search out from 0 until there is a change in sign between min and max.
-    auto max  =  10ll;
+    auto max  =  MonkeyType{10};
     auto min  = -max;
 
     while( eval(min) == eval(max))
@@ -185,7 +186,7 @@ try
 
     // the 0 must be in this rnage.    
     // binary search in this range
-    auto humn =  0ll;
+    auto humn =  MonkeyType{0};
     auto root = eval(humn);         // -1 less,  0 equal,  1 more
 
     // don't know whether there's a +ve or -ve correlation
@@ -217,7 +218,7 @@ try
     }
     humn++;
 
-    print("Part 2 : {:>15} in {} ms\n",humn,stopwatch.milliseconds());  // Part 2 :   3375719472770 in 3.7463 ms
+    print("Part 2 : {:>15} in {} ms\n",static_cast<int64_t>(humn),stopwatch.milliseconds());  // Part 2 :   3375719472770 in 3.7463 ms
 
 }
 catch(std::exception const &e)
