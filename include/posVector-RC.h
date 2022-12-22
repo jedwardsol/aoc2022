@@ -112,6 +112,12 @@ struct Grid
         return data[ pos.row*width + pos.col];
     }
 
+    auto &at(Pos pos)
+    {
+        return data[ pos.row*width + pos.col];
+    }
+
+
     auto &operator[](Pos pos) const
     {
         return data[ pos.row*width + pos.col];
