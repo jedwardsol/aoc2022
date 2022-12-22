@@ -4,6 +4,7 @@
 #include "include/getdata.h"
 #include "include/posVector-RC.h"
 #include "include/stringstuff.h"
+#include "include/stopwatch.h"
 
 #include <variant>
 
@@ -18,17 +19,12 @@ struct TurnRight{};
 using Move = std::variant<int,TurnLeft,TurnRight>;
 
 
-struct Part1Grid 
+struct Day22Grid 
 {
-    Part1Grid(std::vector<std::string> &lines) : grid{static_cast<int>(lines[0].size()), static_cast<int>(lines.size())}
+    Day22Grid (std::vector<std::string> const &lines) : grid{static_cast<int>(lines[0].size()), static_cast<int>(lines.size())}
     {
         for(auto row=0;row<grid.height; row++)
         {
-            if(lines[row].size() != grid.width)
-            {
-                lines[row].append(grid.width-lines[row].size(),' ');
-            }
-
             memcpy(grid[row].data(), lines[row].data(), grid.width);
         }
 
@@ -42,6 +38,19 @@ struct Part1Grid
     {
         std::visit(*this,move);
     }
+
+    
+    int password()
+    {
+        //sum of 1000 times the row, 4 times the column, and the facing.
+
+        return    (1000 * (pos.row + 1)) 
+                + (   4 * (pos.col + 1))
+                + static_cast<int>(dir);
+    }
+
+
+public:
 
     void operator()(TurnLeft)
     {
@@ -71,24 +80,56 @@ struct Part1Grid
     {
         for(int i=0;i<distance;i++)
         {
-            Pos newPos;
+            Pos destination;
 
             switch(dir)
             {
-            case Direction::left  : newPos=lookLeft (pos); break;
-            case Direction::up    : newPos=lookUp   (pos); break;
-            case Direction::right : newPos=lookRight(pos); break;
-            case Direction::down  : newPos=lookDown (pos); break;
+            case Direction::left  : destination=lookLeft (pos); break;
+            case Direction::up    : destination=lookUp   (pos); break;
+            case Direction::right : destination=lookRight(pos); break;
+            case Direction::down  : destination=lookDown (pos); break;
             }
 
-            if(grid[newPos]=='.')
+            if(grid[destination]=='.')
             {
-                pos=newPos;
+                pos=destination;
+            }
+            else
+            {
+                break;      // hit a wall : leave loop since we're just going to keep hitting it
             }
         }
     }
 
-    Pos lookLeft(Pos pos)
+
+private:
+
+    virtual Pos lookLeft (Pos pos) =0;
+    virtual Pos lookUp   (Pos pos) =0;
+    virtual Pos lookRight(Pos pos) =0;
+    virtual Pos lookDown (Pos pos) =0;
+
+protected:
+
+    Grid<char>  grid;
+    Pos         pos{};
+    Direction   dir{Direction::right};
+};
+
+
+struct Part1Grid : Day22Grid
+{
+    // Grid is flat.
+    //  look over spaces
+    //  look over the edge of the grid to the other side
+
+    using Day22Grid::Day22Grid;
+
+private:
+
+
+
+    Pos lookLeft(Pos pos) override
     {
         pos.col--;
         if(pos.col==-1)
@@ -106,7 +147,7 @@ struct Part1Grid
         }
     }
     
-    Pos lookUp(Pos pos)
+    Pos lookUp(Pos pos) override
     {
         pos.row--;
         if(pos.row==-1)
@@ -124,7 +165,7 @@ struct Part1Grid
         }
     }
 
-    Pos lookRight(Pos pos)
+    Pos lookRight(Pos pos) override
     {
         pos.col++;
         if(pos.col==grid.width)
@@ -142,7 +183,7 @@ struct Part1Grid
         }
     }
 
-    Pos lookDown(Pos pos)
+    Pos lookDown(Pos pos) override
     {
         pos.row++;
         if(pos.row==grid.height)
@@ -159,22 +200,91 @@ struct Part1Grid
             return pos;
         }
     }
-
-    int password()
-    {
-        //sum of 1000 times the row, 4 times the column, and the facing.
-
-        return    (1000 * (pos.row + 1)) 
-                + (   4 * (pos.col + 1))
-                + static_cast<int>(dir);
-    }
-
-private:
-    Grid<char>  grid;
-    Pos         pos{};
-    Direction   dir{Direction::right};
 };
 
+
+
+struct Part2Grid : Day22Grid
+{
+    // Grid the surface of a cube. 
+    //  a space, or the the edge of the grid means look around a corner
+
+    using Day22Grid::Day22Grid;
+
+private:
+
+    Pos lookLeft(Pos pos) override
+    {
+        pos.col--;
+        if(pos.col==-1)
+        {
+            pos.col+=grid.width;
+        }
+
+        if(grid[pos]==' ')
+        {
+            return lookLeft(pos);
+        }
+        else
+        {
+            return pos;
+        }
+    }
+    
+    Pos lookUp(Pos pos) override
+    {
+        pos.row--;
+        if(pos.row==-1)
+        {
+            pos.row+=grid.height;
+        }
+
+        if(grid[pos]==' ')
+        {
+            return lookUp(pos);
+        }
+        else
+        {
+            return pos;
+        }
+    }
+
+    Pos lookRight(Pos pos) override
+    {
+        pos.col++;
+        if(pos.col==grid.width)
+        {
+            pos.col-=grid.width;
+        }
+
+        if(grid[pos]==' ')
+        {
+            return lookRight(pos);
+        }
+        else
+        {
+            return pos;
+        }
+    }
+
+    Pos lookDown(Pos pos) override
+    {
+        pos.row++;
+        if(pos.row==grid.height)
+        {
+            pos.row-=grid.height;
+        }
+
+        if(grid[pos]==' ')
+        {
+            return lookDown(pos);
+        }
+        else
+        {
+            return pos;
+        }
+    }
+};
 
 
 
@@ -205,23 +315,65 @@ auto getMoves(std::string_view s)
 }
 
 
+
+auto getData()
+{
+    auto rawLines = getDataLines();
+
+    // last line is the moves,  line before that is blank
+
+    auto moves = std::move(rawLines.back());
+    rawLines.pop_back();
+    rawLines.pop_back();
+
+
+    // remaining lines are the grid, but might not be padded with spaces
+
+    auto len = rawLines[0].size();
+
+    for(auto &line : rawLines)
+    {
+        line.append(len - line.size(),' ');
+    }
+
+
+    return std::make_pair(moves,rawLines);
+}
+
+
 int main()
 try
 {
-    auto lines = getDataLines();
-    auto moves = getMoves(lines.back());
+    auto const &[moveLine, gridLines] = getData();
 
-    lines.pop_back();
-    lines.pop_back();
+    auto moves = getMoves(moveLine);
 
-    Part1Grid    grid{lines};
-
-    for(auto move : moves)
     {
-        grid.move(move);
+        stopwatch   stopwatch;
+        Part1Grid   grid{gridLines};
+
+        for(auto move : moves)
+        {
+            grid.move(move);
+        }
+
+        print("Part 1 : {} in {} us\n", grid.password(),stopwatch.microseconds());
     }
 
-    print("Part 1 : {}\n", grid.password());
+
+    {
+        stopwatch   stopwatch;
+        Part2Grid   grid{gridLines};
+
+        for(auto move : moves)
+        {
+            grid.move(move);
+        }
+
+        print("Part 2 : {} in {} us\n", grid.password(),stopwatch.microseconds());
+    }
+
+
 
 }
 catch(std::exception const &e)
