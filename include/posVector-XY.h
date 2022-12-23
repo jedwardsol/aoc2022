@@ -5,14 +5,14 @@ struct Vector
     int dx{};
     int dy{};
 
-    Vector  &operator+=(Vector const &rhs)
+    constexpr Vector  &operator+=(Vector const &rhs)
     {
         dx+=rhs.dx;
         dy+=rhs.dy;
         return *this;
     }
 
-    Vector  &operator-=(Vector const &rhs)
+    constexpr Vector  &operator-=(Vector const &rhs)
     {
         dx-=rhs.dx;
         dy-=rhs.dy;
@@ -30,14 +30,14 @@ struct Pos
     int x{};
     int y{};
 
-    Pos  &operator+=(Vector const &rhs)
+    constexpr Pos  &operator+=(Vector const &rhs)
     {
         x+=rhs.dx;
         y+=rhs.dy;
         return *this;
     }
 
-    Pos  &operator-=(Vector const &rhs)
+    constexpr Pos  &operator-=(Vector const &rhs)
     {
         x-=rhs.dx;
         y-=rhs.dy;
@@ -50,34 +50,34 @@ struct Pos
 };
 
 
-Vector operator+(Vector  lhs,Vector const &rhs)
+constexpr Vector operator+(Vector  lhs,Vector const &rhs)
 {
     return lhs+=rhs;
 }
 
-Vector operator-(Vector  lhs,Vector const &rhs)
+constexpr Vector operator-(Vector  lhs,Vector const &rhs)
 {
     return lhs-=rhs;
 }
 
 
-Pos operator+(Pos  lhs,Vector const &rhs)
+constexpr Pos operator+(Pos  lhs,Vector const &rhs)
 {
     return lhs+=rhs;
 }
 
-Pos operator-(Pos  lhs,Vector const &rhs)
+constexpr Pos operator-(Pos  lhs,Vector const &rhs)
 {
     return lhs-=rhs;
 }
 
 
-Pos operator+(Vector const &lhs,Pos rhs)
+constexpr Pos operator+(Vector const &lhs,Pos rhs)
 {
     return rhs+=lhs;
 }
 
-Vector operator-(Pos const &lhs,Pos const &rhs)
+constexpr Vector operator-(Pos const &lhs,Pos const &rhs)
 {
     return {lhs.x-rhs.x,lhs.y-rhs.y};
 }

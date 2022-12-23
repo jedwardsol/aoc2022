@@ -14,7 +14,7 @@
 #include <array>
 #include "include/hash.h"
 
-using Elves = std::unordered_set<Pos>;
+using Elves = std::set<Pos>;
 
 
 template<>
@@ -42,45 +42,55 @@ struct std::hash<Pos>
 */
 
 
+constexpr Vector N{ 0,-1};
+constexpr Vector S{ 0,+1};
+constexpr Vector E{+1, 0};
+constexpr Vector W{-1, 0};
+
+constexpr Vector NW{N+W};
+constexpr Vector NE{N+E};
+constexpr Vector SW{S+W};
+constexpr Vector SE{S+E};
+
+
+
 bool northNeighbours(Elves  const &elves,  Pos const &elf)
 {
-    return    elves.contains( {elf.x-1, elf.y-1})
-           || elves.contains( {elf.x  , elf.y-1})
-           || elves.contains( {elf.x+1, elf.y-1});
+    return    elves.contains( elf+NW)
+           || elves.contains( elf+N)
+           || elves.contains( elf+NE);
 }
 
 bool southNeighbours(Elves  const &elves,  Pos const &elf)
 {
-    return    elves.contains( {elf.x-1, elf.y+1})
-           || elves.contains( {elf.x  , elf.y+1})
-           || elves.contains( {elf.x+1, elf.y+1});
+    return    elves.contains( elf+SW)
+           || elves.contains( elf+S)
+           || elves.contains( elf+SE);
 }
 
 bool westNeighbours(Elves  const &elves,  Pos const &elf)
 {
-    return    elves.contains( {elf.x-1, elf.y-1})
-           || elves.contains( {elf.x-1, elf.y  })
-           || elves.contains( {elf.x-1, elf.y+1});
+    return    elves.contains( elf+NW)
+           || elves.contains( elf+ W)
+           || elves.contains( elf+SW);
 }
 
 bool eastNeighbours(Elves  const &elves,  Pos const &elf)
 {
-    return    elves.contains( {elf.x+1, elf.y-1})
-           || elves.contains( {elf.x+1, elf.y  })
-           || elves.contains( {elf.x+1, elf.y+1});
+    return    elves.contains( elf+NE)
+           || elves.contains( elf+ E)
+           || elves.contains( elf+SE);
 }
-
-
 
 
 using NeighbourChecker = std::pair<decltype(&westNeighbours), Vector>;
 
-
-std::array<NeighbourChecker,4> checker{{ 
-    {northNeighbours, {0,-1}},
-    {southNeighbours, {0,+1}},
-    {westNeighbours,  {-1,0}},
-    {eastNeighbours,  {+1,0}},
+std::array<NeighbourChecker,4> checker
+{{ 
+    {northNeighbours, N},
+    {southNeighbours, S},
+    {westNeighbours,  W},
+    {eastNeighbours,  E},
 }};
 
 
