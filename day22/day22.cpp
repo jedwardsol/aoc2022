@@ -9,6 +9,7 @@
 #include <variant>
 #include <tuple>
 #include <array>
+#include <cassert>
 
 enum class Direction
 {
@@ -170,6 +171,8 @@ struct Part2Grid : Day22Grid
         {
             throw_runtime_error("This is not one of the hardcoded solutions");
         }
+
+        sanityCheckTransitions();
     }
 
 
@@ -209,48 +212,62 @@ struct Part2Grid : Day22Grid
     };
 
 
-    using Transitions = std::array<  std::array<Transition,4>, 6>;
+    using Transitions = std::array<  std::array<Transition,4>, 7>;
+
 
     Transitions exampleTransitions
-    {{//Up                                          Down                                    Left                                        Right
-        {{ {2, zero,   prevColInv, Direction::down},   {3, zero, prevCol,  Direction::down},   {3, zero,   prevRow,    Direction::down},   {6, prevColInv, max,    Direction::left} }},
-        {{ {2, zero,   prevColInv, Direction::down},   {3, zero, prevCol,  Direction::down},   {3, zero,   prevRow,    Direction::down},   {6, prevColInv, max,    Direction::left} }},
-
+    {{//   Right                                            Down                                            Left                                             Up                                             
+        {{ {0, zero,        zero,       Direction::down},   {0, zero,       zero,       Direction::down},   {0, zero,       zero,      Direction::down},     {0, zero,        zero,       Direction::down}  }},       // dummy
+                                                                                                                                                                             
+        {{ {6, prevColInv, max,         Direction::left},   {4, zero,       prevCol,    Direction::down},   {3, zero,       prevRow,   Direction::down},     {2, zero,        prevColInv, Direction::down}  }},       // 1
+        {{ {3, prevRow,    zero,        Direction::right},  {5, max,        prevColInv, Direction::up},     {6, max,        prevColInv,Direction::up},       {1, zero,        prevColInv, Direction::down}  }},       // 2
+        {{ {4, prevRow,    zero,        Direction::right},  {5, prevColInv, zero,       Direction::right},  {2, prevRow,    max,       Direction::left},     {1, prevCol,     zero,       Direction::right} }},       // 3
+        {{ {6, zero,       prevRowInv,  Direction::down},   {5, zero,       prevCol,    Direction::down},   {3, prevRow,    max,       Direction::left},     {1, max,         prevCol,    Direction::up}    }},       // 4
+        {{ {6, prevRow,    zero,        Direction::right},  {2, max,        prevColInv, Direction::up},     {3, max,        prevRowInv,Direction::up},       {4, max,         prevCol,    Direction::up}    }},       // 5
+        {{ {1, prevRowInv, max,         Direction::left},   {2, prevColInv, zero,       Direction::right},  {5, prevRow,    max,       Direction::left},     {4, prevColInv,  max,        Direction::left}  }},       // 5
     }};
 
 
 
-/*
-    1 up    goes to   2 top,    col -col,           direction down
-    1 down  goes to   4 top,    col  col,           direction down     
-    1 left  goes to   3 top,    col  row            direction down
-    1 right goes to   6 right,  row -col            direction left
+    void sanityCheckTransitions()
+    {
+        for(int face = 1;face <= 6; face++)
+        {
+            for(int dir = 0;dir < 4; dir++)
+            {
+                auto &transition = transitions[face][dir];
 
-    2 up    goes to   1 top,    col -col            direction down
-    2 down  goes to   5 bottom, col -col,           direction up
-    2 left  goes to   6 bottom, col -row            direction up
-    2 right goes to   3 left,   row  row            direction right
+                switch(transition.newDirection)
+                {
+                case Direction::up:     assert(transition.newRow == max);   break;   
+                case Direction::down:   assert(transition.newRow == zero);  break;   
+                case Direction::left:   assert(transition.newCol == max);   break;   
+                case Direction::right:  assert(transition.newCol == zero);  break;   
 
-    3 up    goes to   1 left,   row  col,           direction right
-    3 down  goes to   3 left,   row -col,           direction right
-    3 left  goes to   2 right,  row  row            direction left
-    3 right goes to   4 left,   row  row            direction right
+                }
 
-    4 up    goes to   1 bottom, col  col,           direction up
-    4 down  goes to   5 top,    col  col,           direction down
-    4 left  goes to   3 right,  row  row            direction left
-    4 right goes to   6 top,    col -row            direction right
+                auto opposite=[](Direction direction)
+                {
+                    switch(direction)
+                    {
+                    case Direction::up:     return Direction::down;
+                    case Direction::down:   return Direction::up;
+                    case Direction::left:   return Direction::right;
+                    case Direction::right:  return Direction::left;
+                    default:                throw_runtime_error("where?");
+                    }
+                };
 
-    5 up    goes to   4 bottom, col  col,           direction up
-    5 down  goes to   2 bottom, col -col,           direction up
-    5 left  goes to   3 bottom, col -row            direction up
-    5 right goes to   6 left,   row  row            direction right
+                auto newFace = transition.newFace;
+                auto newDir  = transition.newDirection;
+                auto oppDir  = opposite(newDir);
 
-    6 up    goes to   4 right,  row  row,           direction left
-    6 down  goes to   2 left,   row -col,           direction right
-    6 left  goes to   5 right,  row  row            direction left
-    6 right goes to   1 left,   row -row            direction right
-*/    
+                auto &oppTransition = transitions[newFace][(int)oppDir];
+
+                assert (oppTransition.newFace      == face);
+            }
+        }
+    }
 
 
 

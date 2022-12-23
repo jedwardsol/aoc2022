@@ -16,7 +16,7 @@ inline auto split(std::string_view string, std::string_view  delim)
 {
     std::vector<std::string_view>  result;     
 
-    for(auto const element : std::views::split(string,delim))
+    for(auto const &element : std::views::split(string,delim))
     {
         result.emplace_back(element.begin(), element.end());
     }
