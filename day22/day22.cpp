@@ -90,11 +90,10 @@ public:
         {
             auto [newPos, newDir] = look(currentPos,currentDir);
 
-            currentDir=newDir;
-            
             if(grid[newPos]=='.')
             {
                 currentPos=newPos;
+                currentDir=newDir;
             }
             else
             {
@@ -152,79 +151,191 @@ struct Part2Grid : Day22Grid
     // Grid the surface of a cube. 
     //  a space, or the the edge of the grid means look around a corner
 
-    using Day22Grid::Day22Grid;
 
-
-    auto getFace(Pos const &pos) const
+    Part2Grid (std::vector<std::string> const &lines) : Day22Grid{lines}
     {
         if(grid.width==16)
         {
-            static constexpr int faceMap[4][4]=
-            {
-                {0,0,1,0},
-                {2,3,4,0},
-                {0,0,5,6},
-                {0,0,0,0},
-            };
-
-            auto face    = faceMap[pos.row/4][pos.col/4];
-            auto facePos = Pos    {pos.row%4, pos.col%4};
-
-            return std::make_pair(face,facePos);
+            faceSize=4;
+            faceMap=exampleFaceMap;
+            transitions = exampleTransitions;
         }
         else if(grid.width==150)
         {
-            static constexpr int faceMap[4][4]=
-            {
-                {0,1,2,0},
-                {2,3,0,0},
-                {4,5,0,0},
-                {6,0,0,0},
-            };
-
-            auto face    = faceMap[pos.row/50][pos.col/50];
-            auto facePos = Pos    {pos.row%50, pos.col%50};
-
-            return std::make_pair(face,facePos);
+            faceSize=50;
+            faceMap=realFaceMap;
+            transitions=realTransitions;
         }
-        else 
+        else
         {
             throw_runtime_error("This is not one of the hardcoded solutions");
         }
     }
 
 
+    using FaceMap = std::array< std::array<int, 4>,4> ;
+
+    static inline constexpr FaceMap exampleFaceMap
+    {{
+        {0,0,1,0},
+        {2,3,4,0},
+        {0,0,5,6},
+        {0,0,0,0},
+    }};
+
+    static constexpr FaceMap  realFaceMap
+    {{
+        {0,1,2,0},
+        {2,3,0,0},
+        {4,5,0,0},
+        {6,0,0,0},
+    }};
+
+
+
+    enum NewPosition
+    {
+        zero,       max,           
+        prevRow,    prevCol,
+        prevRowInv, prevColInv
+    };
+
+    struct Transition
+    {
+        int             newFace;
+        NewPosition     newRow;
+        NewPosition     newCol;
+        Direction       newDirection;
+    };
+
+
+    using Transitions = std::array<  std::array<Transition,4>, 6>;
+
+    Transitions exampleTransitions
+    {{//Up                                          Down                                    Left                                        Right
+        {{ {2, zero,   prevColInv, Direction::down},   {3, zero, prevCol,  Direction::down},   {3, zero,   prevRow,    Direction::down},   {6, prevColInv, max,    Direction::left} }},
+        {{ {2, zero,   prevColInv, Direction::down},   {3, zero, prevCol,  Direction::down},   {3, zero,   prevRow,    Direction::down},   {6, prevColInv, max,    Direction::left} }},
+
+    }};
+
+
+
+/*
+    1 up    goes to   2 top,    col -col,           direction down
+    1 down  goes to   4 top,    col  col,           direction down     
+    1 left  goes to   3 top,    col  row            direction down
+    1 right goes to   6 right,  row -col            direction left
+
+    2 up    goes to   1 top,    col -col            direction down
+    2 down  goes to   5 bottom, col -col,           direction up
+    2 left  goes to   6 bottom, col -row            direction up
+    2 right goes to   3 left,   row  row            direction right
+
+    3 up    goes to   1 left,   row  col,           direction right
+    3 down  goes to   3 left,   row -col,           direction right
+    3 left  goes to   2 right,  row  row            direction left
+    3 right goes to   4 left,   row  row            direction right
+
+    4 up    goes to   1 bottom, col  col,           direction up
+    4 down  goes to   5 top,    col  col,           direction down
+    4 left  goes to   3 right,  row  row            direction left
+    4 right goes to   6 top,    col -row            direction right
+
+    5 up    goes to   4 bottom, col  col,           direction up
+    5 down  goes to   2 bottom, col -col,           direction up
+    5 left  goes to   3 bottom, col -row            direction up
+    5 right goes to   6 left,   row  row            direction right
+
+    6 up    goes to   4 right,  row  row,           direction left
+    6 down  goes to   2 left,   row -col,           direction right
+    6 left  goes to   5 right,  row  row            direction left
+    6 right goes to   1 left,   row -row            direction right
+*/    
+
+
+
+
+    Transitions realTransitions;
+
+    
+
+
+
+    using   FaceMapPos   = Pos;
+    using   FaceRelative = std::pair<int,Pos>;
+
+
+    FaceRelative toFaceRelative(Pos const &pos) const
+    {
+        auto face    = faceMap  [pos.row/faceSize][pos.col/faceSize];
+        auto facePos = Pos      {pos.row%faceSize, pos.col%faceSize};
+
+        return std::make_pair(face,facePos);
+    }
+
+
+    FaceMapPos  findFaceInFaceMap(int faceNumber)
+    {
+        for(int r=0;r<4;r++)
+        {
+            for(int c=0;c<4;c++)
+            {
+                if(faceMap[r][c] == faceNumber)
+                {
+                    return {r,c};
+                }
+            }
+        }
+
+        throw_runtime_error("Lost!");
+    }
+
+
+    Pos fromFaceRelative(FaceRelative   pos)
+    {
+        auto  faceMapPos = findFaceInFaceMap(pos.first);    
+    
+        return {faceMapPos.row * faceSize + pos.second.row, faceMapPos.col * faceSize + pos.second.col};
+    }
+
+    auto crossEdge(int fromFace,  Pos  facePos, Direction direction)
+    {
+
+        return std::make_pair( facePos, direction);
+    }
+
 
 private:
 
-
-    std::pair<Pos,Direction> look(Pos const oldPos, Direction oldDir)  override
+    std::pair<Pos,Direction> look(Pos const pos, Direction dir)  override
     {
+        auto [face, facePos] = toFaceRelative(pos);
 
-        auto [oldFace, oldFacePos] = getFace(oldPos);
 
-        auto newPos = oldPos + directionVector(oldDir);
-        auto newDir = oldDir;
-
-        newPos.row =  (newPos.row  + grid.height) % grid.height;
-        newPos.col =  (newPos.col  + grid.width)  % grid.width;
-
-        auto [newFace, newFacePos] = getFace(newPos);
-
-        if(newFace == 0)
+        if(    dir == Direction::left   && facePos.col == 0
+           ||  dir == Direction::right  && facePos.col == faceSize-1
+           ||  dir == Direction::up     && facePos.row == 0
+           ||  dir == Direction::down   && facePos.row == faceSize-1)
         {
+            // turn corner
 
+            auto [newPos, newDir] = crossEdge(face, facePos, dir);
+            return {newPos, newDir};
+        }
+        else
+        {
+            auto newPos = pos + directionVector(dir);
+            
+            return {newPos, dir};
         }
 
-
-        if(grid[newPos]==' ')
-        {
- 
-
-        }
- 
-        return std::make_pair(newPos,newDir);
     }
+
+    int         faceSize{};
+    FaceMap     faceMap;
+    Transitions transitions;
+
+
 };
 
 
