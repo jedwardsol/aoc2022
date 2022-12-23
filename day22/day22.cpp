@@ -227,6 +227,7 @@ struct Part2Grid : Day22Grid
         {{ {1, prevRowInv, max,         Direction::left},   {2, prevColInv, zero,       Direction::right},  {5, prevRow,    max,       Direction::left},     {4, prevColInv,  max,        Direction::left}  }},       // 5
     }};
 
+    Transitions realTransitions;
 
 
     void sanityCheckTransitions()
@@ -270,17 +271,9 @@ struct Part2Grid : Day22Grid
     }
 
 
-
-
-    Transitions realTransitions;
-
     
-
-
-
     using   FaceMapPos   = Pos;
     using   FaceRelative = std::pair<int,Pos>;
-
 
     FaceRelative toFaceRelative(Pos const &pos) const
     {
@@ -289,7 +282,6 @@ struct Part2Grid : Day22Grid
 
         return std::make_pair(face,facePos);
     }
-
 
     FaceMapPos  findFaceInFaceMap(int faceNumber)
     {
@@ -317,8 +309,28 @@ struct Part2Grid : Day22Grid
 
     auto crossEdge(int fromFace,  Pos  facePos, Direction direction)
     {
+        auto &transition = transitions[fromFace][static_cast<int>(direction)];
 
-        return std::make_pair( facePos, direction);
+        auto translate = [&](NewPosition newPosition)
+        {
+            switch(newPosition)
+            {
+            case zero:          return 0;
+            case max:           return faceSize-1;
+            case prevRow:       return facePos.row;
+            case prevCol:       return facePos.col;
+            case prevRowInv:    return (faceSize-1) - facePos.row;
+            case prevColInv:    return (faceSize-1) - facePos.col;
+            default:            throw_runtime_error("bad newPosition");
+            }
+        };
+
+        auto newFacePos = Pos{translate(transition.newRow),
+                              translate(transition.newCol)};
+
+        auto pos = fromFaceRelative({transition.newFace, newFacePos});                                
+
+        return std::make_pair( pos, transition.newDirection);
     }
 
 
