@@ -18,20 +18,16 @@ enum class Direction
     right, down,left, up
 };
 
-
 auto directionVector(Direction direction)
 {
     static constexpr std::array<Vector,4> vectors = {{ {0,1}, {1,0}, {0,-1}, {-1,0} }};
-
     return vectors[ static_cast<int>(direction) ];
 }
-
 
 
 struct TurnLeft{};
 struct TurnRight{};
 using Move = std::variant<int,TurnLeft,TurnRight>;
-
 
 struct Day22Grid 
 {
