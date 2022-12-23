@@ -8,9 +8,26 @@
 #include "include/constants.h"
 
 #include <set>
+#include <unordered_set>
 #include <map>
+#include <unordered_map>
 #include <array>
+#include "include/hash.h"
 
+using Elves = std::unordered_set<Pos>;
+
+
+template<>
+struct std::hash<Pos>
+{
+    std::size_t operator()(Pos const &p) const noexcept
+    {
+        std::size_t hash{};
+        hash_combine(hash, p.x);
+        hash_combine(hash, p.y);
+        return hash;
+    }
+};
 
 /*
 
@@ -25,28 +42,28 @@
 */
 
 
-bool northNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
+bool northNeighbours(Elves  const &elves,  Pos const &elf)
 {
     return    elves.contains( {elf.x-1, elf.y-1})
            || elves.contains( {elf.x  , elf.y-1})
            || elves.contains( {elf.x+1, elf.y-1});
 }
 
-bool southNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
+bool southNeighbours(Elves  const &elves,  Pos const &elf)
 {
     return    elves.contains( {elf.x-1, elf.y+1})
            || elves.contains( {elf.x  , elf.y+1})
            || elves.contains( {elf.x+1, elf.y+1});
 }
 
-bool westNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
+bool westNeighbours(Elves  const &elves,  Pos const &elf)
 {
     return    elves.contains( {elf.x-1, elf.y-1})
            || elves.contains( {elf.x-1, elf.y  })
            || elves.contains( {elf.x-1, elf.y+1});
 }
 
-bool eastNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
+bool eastNeighbours(Elves  const &elves,  Pos const &elf)
 {
     return    elves.contains( {elf.x+1, elf.y-1})
            || elves.contains( {elf.x+1, elf.y  })
@@ -67,7 +84,7 @@ std::array<NeighbourChecker,4> checker{{
 }};
 
 
-bool anyNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
+bool anyNeighbours(Elves  const &elves,  Pos const &elf)
 {
     return    northNeighbours(elves,elf)
            || eastNeighbours (elves,elf)
@@ -76,10 +93,10 @@ bool anyNeighbours(std::set<Pos>  const &elves,  Pos const &elf)
 }
 
 
-auto gatherProposals(std::set<Pos>  const &elves, int round)
+auto gatherProposals(Elves  const &elves, int round)
 {
-    std::map<Pos,Pos>    proposals;
-    std::map<Pos,int>    proposalCounts;
+    std::unordered_map<Pos,Pos>    proposals;
+    std::unordered_map<Pos,int>    proposalCounts;
 
     for(auto elf : elves)
     {
@@ -114,7 +131,7 @@ struct Bounds
     int maxy=-farAway;
 };
 
-auto bounds(std::set<Pos> const &elves)
+auto bounds(Elves const &elves)
 {
     Bounds bounds;
 
@@ -130,7 +147,7 @@ auto bounds(std::set<Pos> const &elves)
 }
 
 
-auto print(std::set<Pos> const &elves)
+auto print(Elves const &elves)
 {
     auto bounds=::bounds(elves);
 
@@ -148,7 +165,7 @@ auto print(std::set<Pos> const &elves)
 
 }
 
-void part1(std::set<Pos> const &elves)
+void part1(Elves const &elves)
 {
     auto bounds=::bounds(elves);
     auto area = ((bounds.maxx-bounds.minx)+1) * ((bounds.maxy-bounds.miny)+1);
@@ -160,7 +177,7 @@ void part1(std::set<Pos> const &elves)
 int main()
 try
 {
-    std::set<Pos>    elves;
+    Elves    elves;
 
     auto const lines = getDataLines();
 
