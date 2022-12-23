@@ -11,6 +11,8 @@
 #include <array>
 #include <cassert>
 
+// way over complex / over engineered!
+
 enum class Direction
 {
     right, down,left, up
@@ -198,9 +200,13 @@ struct Part2Grid : Day22Grid
 
     enum NewPosition
     {
-        zero,       max,           
-        prevRow,    prevCol,
-        prevRowInv, prevColInv
+        invalid,
+        zero,       top=zero,   left=zero,
+        max,        bottom=max, right=max,   
+        prevRow,    
+        prevCol,
+        prevRowInv, 
+        prevColInv
     };
 
     struct Transition
@@ -217,17 +223,29 @@ struct Part2Grid : Day22Grid
 
     Transitions exampleTransitions
     {{//   Right                                            Down                                            Left                                             Up                                             
-        {{ {0, zero,        zero,       Direction::down},   {0, zero,       zero,       Direction::down},   {0, zero,       zero,      Direction::down},     {0, zero,        zero,       Direction::down}  }},       // dummy
+        {{ {0, invalid,     invalid,    Direction::down},   {0, invalid,    invalid,    Direction::down},   {0, invalid,    invalid,    Direction::down},     {0, invalid,     invalid,     Direction::down}  }},       // dummy
                                                                                                                                                                              
-        {{ {6, prevColInv, max,         Direction::left},   {4, zero,       prevCol,    Direction::down},   {3, zero,       prevRow,   Direction::down},     {2, zero,        prevColInv, Direction::down}  }},       // 1
-        {{ {3, prevRow,    zero,        Direction::right},  {5, max,        prevColInv, Direction::up},     {6, max,        prevColInv,Direction::up},       {1, zero,        prevColInv, Direction::down}  }},       // 2
-        {{ {4, prevRow,    zero,        Direction::right},  {5, prevColInv, zero,       Direction::right},  {2, prevRow,    max,       Direction::left},     {1, prevCol,     zero,       Direction::right} }},       // 3
-        {{ {6, zero,       prevRowInv,  Direction::down},   {5, zero,       prevCol,    Direction::down},   {3, prevRow,    max,       Direction::left},     {1, max,         prevCol,    Direction::up}    }},       // 4
-        {{ {6, prevRow,    zero,        Direction::right},  {2, max,        prevColInv, Direction::up},     {3, max,        prevRowInv,Direction::up},       {4, max,         prevCol,    Direction::up}    }},       // 5
-        {{ {1, prevRowInv, max,         Direction::left},   {2, prevColInv, zero,       Direction::right},  {5, prevRow,    max,       Direction::left},     {4, prevColInv,  max,        Direction::left}  }},       // 5
+        {{ {6, prevColInv,  right,      Direction::left},   {4, top,        prevCol,    Direction::down},   {3, top,        prevRow,    Direction::down},     {2, top,          prevColInv, Direction::down}  }},       // 1
+        {{ {3, prevRow,     left,       Direction::right},  {5, bottom,     prevColInv, Direction::up},     {6, bottom,     prevColInv, Direction::up},       {1, top,          prevColInv, Direction::down}  }},       // 2
+        {{ {4, prevRow,     left,       Direction::right},  {5, prevColInv, left,       Direction::right},  {2, prevRow,    right,      Direction::left},     {1, prevCol,      left,       Direction::right} }},       // 3
+        {{ {6, top,         prevRowInv, Direction::down},   {5, top,        prevCol,    Direction::down},   {3, prevRow,    right,      Direction::left},     {1, bottom,       prevCol,    Direction::up}    }},       // 4
+        {{ {6, prevRow,     left,       Direction::right},  {2, bottom,     prevColInv, Direction::up},     {3, bottom,     prevRowInv, Direction::up},       {4, bottom,       prevCol,    Direction::up}    }},       // 5
+        {{ {1, prevRowInv,  right,      Direction::left},   {2, prevColInv, left,       Direction::right},  {5, prevRow,    right,      Direction::left},     {4, prevColInv,   right,      Direction::left}  }},       // 5
     }};
 
-    Transitions realTransitions;
+    Transitions realTransitions
+    {{//   Right                                            Down                                            Left                                             Up                                             
+        {{ {0, invalid,     invalid,    Direction::down},   {0, invalid,    invalid,    Direction::down},   {0, invalid,    invalid,    Direction::down},     {0, invalid,     invalid,     Direction::down}  }},       // dummy
+                                                                                                                                                                             
+        {{ {2, prevRow,     top ,       Direction::right},  {3, top ,       prevCol,    Direction::down},   {4, prevRowInv, left,       Direction::right},    {6, prevCol,      top ,       Direction::right} }},       // 1
+        {{ {5, prevRowInv,  right,      Direction::left},   {3, prevCol,    right,      Direction::left},   {1, prevRow,    right,      Direction::left},     {6, bottom,       prevCol,    Direction::up}    }},       // 2
+        {{ {2, bottom,      prevRow,    Direction::up},     {5, top ,       prevCol,    Direction::down},   {4, top ,       prevRow,    Direction::down},     {1, bottom,       prevCol,    Direction::up}    }},       // 3
+        {{ {5, prevRow,     left ,      Direction::right},  {6, top ,       prevCol,    Direction::down},   {1, prevRowInv, left,       Direction::right},    {3, prevCol,      left,       Direction::right} }},       // 4
+        {{ {2, prevRowInv,  right,      Direction::left},   {6, prevCol,    right,      Direction::left},   {4, prevRow,    right,      Direction::left},     {3, bottom,       prevCol,    Direction::up}    }},       // 5
+        {{ {5, bottom,      prevRow,    Direction::up},     {2, top ,       prevCol,    Direction::down},   {1, top ,       prevRow,    Direction::down},     {4, bottom,       prevCol,    Direction::up}    }},       // 5
+    }};
+
+
 
 
     void sanityCheckTransitions()
@@ -240,11 +258,10 @@ struct Part2Grid : Day22Grid
 
                 switch(transition.newDirection)
                 {
-                case Direction::up:     assert(transition.newRow == max);   break;   
-                case Direction::down:   assert(transition.newRow == zero);  break;   
-                case Direction::left:   assert(transition.newCol == max);   break;   
-                case Direction::right:  assert(transition.newCol == zero);  break;   
-
+                case Direction::up:     assert(transition.newRow == bottom);    break;   
+                case Direction::down:   assert(transition.newRow == top);       break;   
+                case Direction::left:   assert(transition.newCol == right);     break;   
+                case Direction::right:  assert(transition.newCol == left);      break;   
                 }
 
                 auto opposite=[](Direction direction)
@@ -347,27 +364,20 @@ private:
            ||  dir == Direction::down   && facePos.row == faceSize-1)
         {
             // turn corner
-
             auto [newPos, newDir] = crossEdge(face, facePos, dir);
             return {newPos, newDir};
         }
         else
         {
             auto newPos = pos + directionVector(dir);
-            
             return {newPos, dir};
         }
-
     }
 
     int         faceSize{};
     FaceMap     faceMap;
     Transitions transitions;
-
-
 };
-
-
 
 
 auto getMoves(std::string_view s)
@@ -399,7 +409,7 @@ auto getMoves(std::string_view s)
 
 auto getData()
 {
-    auto rawLines = getDataLines(TestData{});
+    auto rawLines = getDataLines();
 
     // last line is the moves,  line before that is blank
 
@@ -456,9 +466,6 @@ try
 
         print("Part 2 : {} in {} us\n", grid.password(),stopwatch.microseconds());
     }
-
-
-
 }
 catch(std::exception const &e)
 {
@@ -486,57 +493,3 @@ R"(        ...#
 10R5L5R10L4R5L5
 )"};
 
-
-
-
-
-/*
-
-Sample 
-
-  1
-234
-  56
-
-
-    1 up    goes to   2 top,    col -col,           direction down
-    1 down  goes to   4 top,    col  col,           direction down     
-    1 left  goes to   3 top,    col  row            direction down
-    1 right goes to   6 right,  row -col            direction left
-
-    2 up    goes to   1 top,    col -col            direction down
-    2 down  goes to   5 bottom, col -col,           direction up
-    2 left  goes to   6 bottom, col -row            direction up
-    2 right goes to   3 left,   row  row            direction right
-
-    3 up    goes to   1 left,   row  col,           direction right
-    3 down  goes to   3 left,   row -col,           direction right
-    3 left  goes to   2 right,  row  row            direction left
-    3 right goes to   4 left,   row  row            direction right
-
-    4 up    goes to   1 bottom, col  col,           direction up
-    4 down  goes to   5 top,    col  col,           direction down
-    4 left  goes to   3 right,  row  row            direction left
-    4 right goes to   6 top,    col -row            direction right
-
-    5 up    goes to   4 bottom, col  col,           direction up
-    5 down  goes to   2 bottom, col -col,           direction up
-    5 left  goes to   3 bottom, col -row            direction up
-    5 right goes to   6 left,   row  row            direction right
-
-    6 up    goes to   4 right,  row  row,           direction left
-    6 down  goes to   2 left,   row -col,           direction right
-    6 left  goes to   5 right,  row  row            direction left
-    6 right goes to   1 left,   row -row            direction right
-
-    
-
-Real
-
- 12
- 3
-45
-6
-
-
-*/
