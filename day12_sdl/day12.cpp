@@ -13,9 +13,12 @@
 
 
 
-int main()
+
+extern "C"
+int _cdecl SDL_main(int argc, char *argv[])
 try
 {
+
 
     auto const  data{getDataLines()};
 
@@ -48,13 +51,20 @@ try
     }
 
 
+    auto window = createWindow(terrain.width,terrain.height);
+
+
     solvePart1(terrain,start,end);
 
+
+    window.join();
+    return 0;
 
 }
 catch(std::exception const &e)
 {
     print("{}",e.what());
+    return 1;
 }
 
 

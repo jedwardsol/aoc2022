@@ -1,62 +1,115 @@
-#include "include/codeAnalysis.h"
 #include "include/print.h"
 #include "include/thrower.h"
-#include "include/stopwatch.h"
+
+#include "include/sdl++.h"
 #include "include/posVector-RC.h"
 
+#include <thread>
 #include <array>
-#include <vector>
-#include <span>
-#include <queue>
-
-#include "day12.h"
+#include <string>
+using namespace std::literals;
 
 
-auto colour(char a)
+//https://lazyfoo.net/tutorials/SDL/01_hello_SDL/index2.php
+
+
+
+struct RGBA
 {
-    auto RGB = 40+a*5;
+    uint8_t R;
+    uint8_t G;
+    uint8_t B;
+    uint8_t A;
+};
 
 
-    return std::format("\x1b[38;2;{0};{0};{0}m", RGB);
-}
-
-auto routecolour(char a)
+/*
+void go(Board &pixels, SDL_Texture *texture)
 {
-    auto R = 50+a*5;
-    auto G = 50+a*8;
-    auto B = 50+a*5;
+    static  int pos{};
 
-    return std::format("\x1b[38;2;{0};{1};{2}m", R, G, B);
-}
-
-auto white()
-{
-    return std::format("\x1b[38;2;{0};{0};{0}m", 128);
-}
-
-
-void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search)
-{
-    for(int row=0;row < terrain.height;row++)
+    for(auto &row : pixels)
     {
-        for(int col=0;col < terrain.width;col++)
-        {
-            char c = terrain[row][col];
+        row.fill( RGBA{0,0,0,0xff} );    
+    }
+    
+    pos = (pos+1) % boardWidth;
 
-            if(search[row][col].onPath)
+    for(auto &row:pixels)
+    {
+        row[pos] = RGBA{0xff,0,0,0xff};        
+    }
+
+///
+
+    int     pitch{};
+    void   *destination{};
+
+    if (SDL_LockTexture(texture, nullptr, &destination, &pitch) != 0) 
+    {
+        throw_runtime_error("SDL_LockTexture : "s + SDL_GetError());
+    }
+
+    memcpy(destination, pixels.data(), pitch * pixels.size());
+
+    SDL_UnlockTexture(texture);
+}
+*/
+
+
+
+void windowThread(int width, int height)
+try
+{
+    SDL         sdl;
+    SDLWindow   window{"Blit", width*4,height*4};
+    SDLRenderer renderer{window};
+
+    SDL_RenderSetLogicalSize(renderer,width, height);
+
+    auto texture    = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_STREAMING,width,height);
+
+    if (texture == nullptr) 
+    {
+        throw_runtime_error("SDL_CreateTexture : "s + SDL_GetError());
+    }
+
+
+    Grid<RGBA>      pixels{width,height};
+
+
+    bool done = false; 
+
+    while( !done)
+    { 
+        SDL_Event e{};
+        
+        while( SDL_PollEvent( &e ) )
+        { 
+            if( e.type == SDL_QUIT ) 
             {
-                print("{}{}", routecolour(c),'\xdb');
-            }
-            else
-            {
-                print("{}{}", colour(c),'\xdb');
+                done = true;
             }
         }
 
-        print("\n");
-
+        //go(pixels,texture);
+        
+        SDL_RenderClear  (renderer);
+        SDL_RenderCopy   (renderer, texture, nullptr, nullptr);
+		SDL_RenderPresent(renderer );      // synced with vsync
     }
 
-    print("{}\n",white());
+    SDL_DestroyTexture(texture);
 
+}
+catch(std::exception const &e)
+{
+    print("{}",e.what());
+}
+
+
+
+std::thread createWindow(int width, int height)
+{
+    return std::thread{windowThread,width, height};
 }

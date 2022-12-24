@@ -4,7 +4,7 @@
 #include "include/constants.h"
 
 #include <numeric>
-
+#include <thread>
 
 struct Search
 {
@@ -29,6 +29,5 @@ struct Candidate
 
 void  solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end);
 
-void visualise(Grid<int>    const &terrain,  Grid<Search>    const &search);
-
+std::thread createWindow(int width, int height);
 

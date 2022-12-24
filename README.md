@@ -42,11 +42,11 @@ Day 20 : moving numbers in a circular list
 
 Day 21 : monkeys shouting numbers
 
-Day 22 : 
+Day 22 : moving around a cube
 
-Day 23 : 
+Day 23 : Elves moving to find space
 
-Day 24 : 
+Day 24 : Walking between blizzards
 
 Day 25 : 
 

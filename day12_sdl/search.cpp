@@ -120,7 +120,6 @@ void solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
 
 
 
-    visualise(terrain,  search);
 
 
 }
