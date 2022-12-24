@@ -45,25 +45,18 @@ Grid<int>       terrain{ []
 
     return terrain;
 }()};
-Grid<Search>    search {terrain.width, terrain.height};
-Queue           fringe;
-
-std::mutex      searchData;
+Grid<Search>            search {terrain.width, terrain.height};
+std::deque<Candidate>   fringe;            // BFS
+std::mutex              searchData;
 
 
 extern "C"
 int _cdecl SDL_main(int argc, char *argv[])
 try
 {
-
-
-
-
     auto window = createWindow(terrain.width,terrain.height);
 
-
     solvePart1(terrain,start,end);
-
 
     window.join();
     return 0;

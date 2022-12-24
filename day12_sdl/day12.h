@@ -5,7 +5,7 @@
 
 #include <numeric>
 #include <thread>
-#include <queue>
+#include <deque>
 
 
 struct Search
@@ -26,7 +26,7 @@ struct Candidate
     }
 };
 
-using Queue = std::queue<Candidate>;            // BFS
+
 
 
 struct RGBA
@@ -46,9 +46,9 @@ void getPixels(Grid<RGBA>   &pixels);
 
 
 
-extern Pos          start;
-extern Pos          end;
-extern Grid<int>    terrain;
-extern Grid<Search> search;
-extern Queue        fringe;
-extern std::mutex   searchData;
+extern Pos                      start;
+extern Pos                      end;
+extern Grid<int>                terrain;
+extern Grid<Search>             search;
+extern std::deque<Candidate>    fringe;            // BFS
+extern std::mutex               searchData;

@@ -70,14 +70,13 @@ struct SDLWindow : Uncopyable
     }
 
 private:
-    SDL_Window *window;
+    SDL_Window *window{};
 };
-
 
 struct SDLRenderer : Uncopyable
 {
 
-    SDLRenderer(SDL_Window *window)
+    SDLRenderer(SDLWindow &window)
     {
         renderer   = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED  | SDL_RENDERER_PRESENTVSYNC );
 
@@ -99,7 +98,37 @@ struct SDLRenderer : Uncopyable
     }
 
 private:
-    SDL_Renderer    *renderer;
+    SDL_Renderer    *renderer{};
+};
+
+
+
+struct SDLTexture : Uncopyable
+{
+
+    SDLTexture(SDLRenderer &renderer,int width, int height)
+    {
+        texture    = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_STREAMING,width,height);
+
+        if (texture == nullptr) 
+        {
+            throw_runtime_error("SDL_CreateTexture : "s + SDL_GetError());
+        }
+    }
+
+    ~SDLTexture()
+    {
+    	SDL_DestroyTexture(texture);
+    }
+
+    
+    operator SDL_Texture *()
+    {
+        return texture;
+    }
+
+private:
+    SDL_Texture    *texture{};
 };
 
 

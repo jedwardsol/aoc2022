@@ -16,19 +16,13 @@ using namespace std::literals;
 
 
 
-Candidate pop(std::queue<Candidate> &queue)
+Candidate pop(std::deque<Candidate> &queue)
 {
     auto ret = queue.front();
-    queue.pop();
+    queue.pop_front();
     return ret;
 }
 
-Candidate pop(std::priority_queue<Candidate> &queue)
-{
-    auto ret = queue.top();
-    queue.pop();
-    return ret;
-}
 
 
 std::vector< Pos > getPart1Neighbours( Grid<int>  const &terrain, Pos here )
@@ -69,7 +63,7 @@ std::vector< Pos > getPart1Neighbours( Grid<int>  const &terrain, Pos here )
 void solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
 {
     search[start].distance=0;
-    fringe.push( Candidate { 0, start} );
+    fringe.push_back( Candidate { 0, start} );
 
     int step{};
 
@@ -107,7 +101,7 @@ void solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
                 search[neighbour].distance = newDistance;
                 search[neighbour].source   = current.pos;
 
-                fringe.push( Candidate { newDistance, neighbour } );
+                fringe.push_back( Candidate { newDistance, neighbour } );
             }
         }
     }
@@ -141,7 +135,7 @@ void getPixels(Grid<RGBA>   &pixels)
     Pos walk;
     if(!fringe.empty())
     {
-         walk=fringe.front().pos;
+         walk=fringe.back().pos;
     }
     else
     {
@@ -154,9 +148,6 @@ void getPixels(Grid<RGBA>   &pixels)
         walk=search[walk].source;
     }
     pixels[walk.row][walk.col].R = 200+2*terrain[walk.row][walk.col];
-
-
-
 }
 
 

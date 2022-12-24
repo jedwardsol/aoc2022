@@ -13,8 +13,6 @@ using namespace std::literals;
 
 
 
-
-
 void drawTexture( Grid<RGBA>  &pixels, SDL_Texture *texture)
 {
     static  int pos{};
@@ -42,24 +40,14 @@ void windowThread(int width, int height)
 try
 {
     SDL         sdl;
-    SDLWindow   window{"Blit", width*8,height*8};
+    SDLWindow   window{"Day12", width*8,height*8};
     SDLRenderer renderer{window};
+    SDLTexture  texture{renderer,width,height};
+    Grid<RGBA>  pixels{width,height};
 
     SDL_RenderSetLogicalSize(renderer,width, height);
 
-    auto texture    = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_STREAMING,width,height);
-
-    if (texture == nullptr) 
-    {
-        throw_runtime_error("SDL_CreateTexture : "s + SDL_GetError());
-    }
-
-
-    Grid<RGBA>      pixels{width,height};
-
-
     bool done = false; 
-
     while( !done)
     { 
         SDL_Event e{};
@@ -72,14 +60,13 @@ try
             }
         }
 
-        drawTexture(pixels, texture);
+        drawTexture      (pixels, texture);
         
         SDL_RenderClear  (renderer);
         SDL_RenderCopy   (renderer, texture, nullptr, nullptr);
 		SDL_RenderPresent(renderer );      // synced with vsync
     }
 
-    SDL_DestroyTexture(texture);
 
 }
 catch(std::exception const &e)
