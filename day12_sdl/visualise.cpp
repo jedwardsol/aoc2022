@@ -9,36 +9,17 @@
 #include <string>
 using namespace std::literals;
 
-
-//https://lazyfoo.net/tutorials/SDL/01_hello_SDL/index2.php
-
+#include "day12.h"
 
 
-struct RGBA
-{
-    uint8_t R;
-    uint8_t G;
-    uint8_t B;
-    uint8_t A;
-};
 
 
-/*
-void go(Board &pixels, SDL_Texture *texture)
+
+void drawTexture( Grid<RGBA>  &pixels, SDL_Texture *texture)
 {
     static  int pos{};
 
-    for(auto &row : pixels)
-    {
-        row.fill( RGBA{0,0,0,0xff} );    
-    }
-    
-    pos = (pos+1) % boardWidth;
-
-    for(auto &row:pixels)
-    {
-        row[pos] = RGBA{0xff,0,0,0xff};        
-    }
+    getPixels(pixels);
 
 ///
 
@@ -50,11 +31,10 @@ void go(Board &pixels, SDL_Texture *texture)
         throw_runtime_error("SDL_LockTexture : "s + SDL_GetError());
     }
 
-    memcpy(destination, pixels.data(), pitch * pixels.size());
+    memcpy(destination, pixels.data.data(), pitch * pixels.height);
 
     SDL_UnlockTexture(texture);
 }
-*/
 
 
 
@@ -62,7 +42,7 @@ void windowThread(int width, int height)
 try
 {
     SDL         sdl;
-    SDLWindow   window{"Blit", width*4,height*4};
+    SDLWindow   window{"Blit", width*8,height*8};
     SDLRenderer renderer{window};
 
     SDL_RenderSetLogicalSize(renderer,width, height);
@@ -92,7 +72,7 @@ try
             }
         }
 
-        //go(pixels,texture);
+        drawTexture(pixels, texture);
         
         SDL_RenderClear  (renderer);
         SDL_RenderCopy   (renderer, texture, nullptr, nullptr);

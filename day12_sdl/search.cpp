@@ -8,12 +8,12 @@
 #include <vector>
 #include <span>
 #include <queue>
+#include <chrono>
+using namespace std::literals;
 
 #include "day12.h"
 
 
-using Queue = std::queue<Candidate>;            // BFS
-//using Queue = std::priority_queue<Candidate>;   // Dijkstra
 
 
 Candidate pop(std::queue<Candidate> &queue)
@@ -68,15 +68,21 @@ std::vector< Pos > getPart1Neighbours( Grid<int>  const &terrain, Pos here )
 // find shortest distance from start to end.  Can't climb more than 1 step up
 void solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
 {
-    Grid<Search>                    search {terrain.width, terrain.height};
-    Queue                           fringe;
-
-   
     search[start].distance=0;
     fringe.push( Candidate { 0, start} );
 
+    int step{};
+
     while( !fringe.empty() ) 
     {
+        step++;
+        if(step%10 == 0)
+        {
+            std::this_thread::sleep_for(10ms);
+        }
+
+        std::unique_lock    _{searchData};
+
         auto const current = pop(fringe);
 
         if( search[current.pos].visited) 
@@ -105,61 +111,52 @@ void solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end)
             }
         }
     }
-
-
-
-    Pos walk=end;
-
-    while(walk != start)
-    {
-        search[walk].onPath=true;
-        walk=search[walk].source;
-    }
-
-    search[walk].onPath=true;
-
-
-
-
-
 }
 
 
 ///////////////////////////////////////////////////////////
 
 
-std::vector< Pos > getPart2Neighbours( Grid<int>  const &terrain, Pos here )
+void getPixels(Grid<RGBA>   &pixels)
 {
-    std::array<Vector,4> const   moves
-    {{
-        {-1, 0},
-        {+1, 0},
-        { 0,-1},
-        { 0,+1},
-    }};
+    std::unique_lock    _{searchData};
 
-
-    std::vector< Pos > neighbours;
-
-    auto const heightHere = terrain[here];            
-
-    for(auto &move : moves)
+    for(int row=0;row<terrain.height; row++)
     {
-        auto const candidate = here+move;
-
-        if(!terrain.inGrid(candidate))
+        for(int col=0;col<terrain.width; col++)
         {
-            continue;
-        }
+            pixels[row][col].A = 0xff;
+            pixels[row][col].R = 100+5*terrain[row][col];
+            pixels[row][col].G = 100+5*terrain[row][col];
+            pixels[row][col].B = 100+5*terrain[row][col];
 
-        if(terrain[candidate] >= terrain[here]-1)
-        {
-            neighbours.push_back(candidate);
+            if(search[row][col].visited)
+            {
+                pixels[row][col].R *= 0.9;
+                pixels[row][col].B *= 0.9;
+            }
         }
     }
 
-    return neighbours;
-}
+    Pos walk;
+    if(!fringe.empty())
+    {
+         walk=fringe.front().pos;
+    }
+    else
+    {
+        walk=end;
+    }
 
+    while(walk != start)
+    {
+        pixels[walk.row][walk.col].R = 200+2*terrain[walk.row][walk.col];
+        walk=search[walk].source;
+    }
+    pixels[walk.row][walk.col].R = 200+2*terrain[walk.row][walk.col];
+
+
+
+}
 
 

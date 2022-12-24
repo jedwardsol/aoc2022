@@ -11,21 +11,14 @@
 
 #include "day12.h"
 
-
-
-
-extern "C"
-int _cdecl SDL_main(int argc, char *argv[])
-try
+Pos             start{};
+Pos             end{};
+Grid<int>       terrain{ []
 {
-
-
     auto const  data{getDataLines()};
 
     Grid<int>   terrain{static_cast<int>(data[0].size()), static_cast<int>(data.size())};
 
-    Pos         start{};
-    Pos         end{};
 
     for(int row=0;row<static_cast<int>(data.size());row++)
     {
@@ -49,6 +42,21 @@ try
             terrain[row][column]=c-'a';
         }
     }
+
+    return terrain;
+}()};
+Grid<Search>    search {terrain.width, terrain.height};
+Queue           fringe;
+
+std::mutex      searchData;
+
+
+extern "C"
+int _cdecl SDL_main(int argc, char *argv[])
+try
+{
+
+
 
 
     auto window = createWindow(terrain.width,terrain.height);

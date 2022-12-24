@@ -5,13 +5,14 @@
 
 #include <numeric>
 #include <thread>
+#include <queue>
+
 
 struct Search
 {
     int     distance{farAway};
     bool    visited{false};
     Pos     source{};
-    bool    onPath{};
 };
 
 struct Candidate
@@ -25,9 +26,29 @@ struct Candidate
     }
 };
 
+using Queue = std::queue<Candidate>;            // BFS
+
+
+struct RGBA
+{
+    uint8_t R;
+    uint8_t G;
+    uint8_t B;
+    uint8_t A;
+};
 
 
 void  solvePart1(Grid<int>    const &terrain, Pos const start, Pos const end);
 
 std::thread createWindow(int width, int height);
 
+void getPixels(Grid<RGBA>   &pixels);
+
+
+
+extern Pos          start;
+extern Pos          end;
+extern Grid<int>    terrain;
+extern Grid<Search> search;
+extern Queue        fringe;
+extern std::mutex   searchData;
