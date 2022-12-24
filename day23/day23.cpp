@@ -14,7 +14,7 @@
 #include <array>
 #include "include/hash.h"
 
-using Elves = std::set<Pos>;
+using Elves = std::unordered_set<Pos>;
 
 
 template<>
@@ -105,7 +105,7 @@ bool anyNeighbours(Elves  const &elves,  Pos const &elf)
 
 auto gatherProposals(Elves  const &elves, int round)
 {
-    std::unordered_map<Pos,Pos>    proposals;
+    std::map<Pos,Pos>    proposals;
     std::unordered_map<Pos,int>    proposalCounts;
 
     for(auto elf : elves)
