@@ -3,6 +3,7 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/posVector-RC.h"
+#include "include/int.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -164,7 +165,7 @@ try
 //    auto const lines = getDataLines(TestData{});
     auto const lines = getDataLines();
 
-    int const size = static_cast<int>(lines.size());
+    int const size = isize(lines);
 
     Forest forest{size,size};
 

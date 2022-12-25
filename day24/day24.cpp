@@ -4,6 +4,7 @@
 #include "include/getdata.h"
 #include "include/posVector-RC.h"
 #include "include/stopwatch.h"
+#include "include/int.h"
 #include <vector>
 #include <numeric>
 #include <string>
@@ -18,8 +19,8 @@ auto calcValleys()
 {
 //  auto lines  = getDataLines(TestInput{});
     auto lines  = getDataLines();
-    auto height = static_cast<int>(lines.size());
-    auto width  = static_cast<int>(lines[0].size());
+    auto height = isize(lines);
+    auto width  = isize(lines[0]);
 
     auto  blizzardCycleLength= std::lcm((width-2),(height-2));
 

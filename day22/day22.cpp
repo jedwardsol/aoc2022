@@ -5,6 +5,7 @@
 #include "include/posVector-RC.h"
 #include "include/stringstuff.h"
 #include "include/stopwatch.h"
+#include "include/int.h"
 
 #include <variant>
 #include <tuple>
@@ -31,7 +32,7 @@ using Move = std::variant<int,TurnLeft,TurnRight>;
 
 struct Day22Grid 
 {
-    Day22Grid (std::vector<std::string> const &lines) : grid{static_cast<int>(lines[0].size()), static_cast<int>(lines.size())}
+    Day22Grid (std::vector<std::string> const &lines) : grid{isize(lines[0]), isize(lines)}
     {
         for(auto row=0;row<grid.height; row++)
         {

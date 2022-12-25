@@ -4,7 +4,7 @@
 #include "include/getdata.h"
 #include "include/stopwatch.h"
 #include "include/posVector-RC.h"
-
+#include "include/int.h"
 #include <array>
 #include <vector>
 #include <span>
@@ -17,14 +17,14 @@ Grid<int>       terrain{ []
 {
     auto const  data{getDataLines()};
 
-    Grid<int>   terrain{static_cast<int>(data[0].size()), static_cast<int>(data.size())};
+    Grid<int>   terrain{isize(data[0]), isize(data)};
 
 
-    for(int row=0;row<static_cast<int>(data.size());row++)
+    for(int row=0;row<isize(data);row++)
     {
         auto &line = data[row];
 
-        for(int column=0;column<static_cast<int>(line.size());column++)
+        for(int column=0;column<isize(line);column++)
         {
             auto c = line[column];
 

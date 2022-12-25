@@ -2,7 +2,7 @@
 #include "include/print.h"
 #include "include/thrower.h"
 #include "include/getdata.h"
-
+#include "include/int.h"
 
 // Horrific
 // TODO : get the vector version working.
@@ -125,7 +125,7 @@ void part1(std::vector<int> const &numbers)
     }
 
     print(&head);
-    decrypt(&head,static_cast<int>(numbers.size()));
+    decrypt(&head,isize(numbers));
     auto coords = calculateCoords(&head);
 
     print("Part 1 : {}\n",coords);
@@ -143,7 +143,7 @@ void part2(std::vector<int> const &numbers)
 
     for(int i=0;i<10;i++)
     {
-        decrypt(&head,static_cast<int>(numbers.size()));
+        decrypt(&head,isize(numbers));
     }
 
     auto coords = calculateCoords(&head);
