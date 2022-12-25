@@ -3,103 +3,32 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/posVector-RC.h"
-
+#include "include/stopwatch.h"
 #include <vector>
-#include <stdint.h>
 #include <numeric>
 #include <string>
 using namespace std::literals;
 
-constexpr   uint8_t     empty{0x00};
-constexpr   uint8_t     wall {0xff};
-constexpr   uint8_t     up   {0x01};       // up/northward   moving blizzard  (row decreasing)
-constexpr   uint8_t     down {0x02};       // down/southward moving blizzard  (row increasing)
-constexpr   uint8_t     left {0x04};       // left/westward  moving blizzard  (col decreasing)
-constexpr   uint8_t     right{0x08};       // right/eastward moving blizzard  (col increasing)
+#include "day24.h"
 
 
-void printBlizzardState(Grid<uint8_t> const &blizzard)
+
+
+auto calcValleys()
 {
-    for(int row=0;row<blizzard.height;row++)
-    {
-        for(int col=0;col<blizzard.width;col++)
-        {
-            switch(blizzard[row][col])
-            {
-            case empty:
-                print(".");
-                break;
-
-            case wall:
-                print("#");
-                break;
-
-            case left:
-                print((char*)u8"←");
-                break;
-
-            case right:
-                print((char*)u8"→");
-                break;
-
-            case up:
-                print((char*)u8"↑");
-                break;
-
-            case down:
-                print((char*)u8"↓");
-                break;
-
-
-            case left | right:
-                print((char*)u8"↔");
-                break;
-
-            case up | down :
-                print((char*)u8"↕");
-                break;
-
-
-
-            default:
-                print((char*)u8"x");
-                break;
-
-            }
-        }
-        print("\n");
-    }
-
-}
-
-void printBlizzardStates(std::vector< Grid<uint8_t>> const &blizzards)
-{
-    for(auto &blizzard : blizzards)
-    {
-        printBlizzardState(blizzard);
-        print("\n");
-    }
-}
-
-
-
-
-
-
-auto calcBlizzardStates()
-{
-    auto lines  = getDataLines(TestInput{});
+//  auto lines  = getDataLines(TestInput{});
+    auto lines  = getDataLines();
     auto height = static_cast<int>(lines.size());
     auto width  = static_cast<int>(lines[0].size());
 
     auto  blizzardCycleLength= std::lcm((width-2),(height-2));
 
-    std::vector< Grid<uint8_t>> blizzardStates(blizzardCycleLength+1, {width,height});
+    std::vector< Valley > valleys (blizzardCycleLength, {width,height});      
 
     
 // read the 1st from the input
 
-    auto &firstState = blizzardStates[0];
+    auto &firstValley = valleys[0];
 
     for(int row=0;row<height;row++)
     {
@@ -108,27 +37,27 @@ auto calcBlizzardStates()
             switch(lines[row][col])
             {
             case '#':
-                firstState[row][col]=wall;
+                firstValley[row][col]=wall;
                 break;
 
             case '.':
-                firstState[row][col]=empty;
+                firstValley[row][col]=empty;
                 break;
 
             case '>':
-                firstState[row][col]=right;
+                firstValley[row][col]=right;
                 break;
 
             case '<':
-                firstState[row][col]=left;
+                firstValley[row][col]=left;
                 break;
 
             case '^':
-                firstState[row][col]=up;
+                firstValley[row][col]=up;
                 break;
 
             case 'v':
-                firstState[row][col]=down;
+                firstValley[row][col]=down;
                 break;
 
             default:
@@ -137,15 +66,13 @@ auto calcBlizzardStates()
         }
     }
 
-    printBlizzardState(firstState);
 
 // calculate the rest
 
-
-    for(int cycle = 1; cycle <= blizzardCycleLength;cycle++)
+    for(int cycle = 1; cycle < blizzardCycleLength;cycle++)
     {
-        auto &prevState = blizzardStates[cycle-1];
-        auto &state     = blizzardStates[cycle];
+        auto &prevValley = valleys[cycle-1];
+        auto &thisValley = valleys[cycle];
 
         int const topRow    =1;
         int const bottomRow =height-2;
@@ -154,55 +81,46 @@ auto calcBlizzardStates()
 
         for(int row=0;row<height;row++)
         {
-            auto prevRow = prevState[row];
-            auto thisRow = state[row];
-
-
             for(int col=0;col<width;col++)
             {
-                auto tile= prevState[row][col];
-
+                auto tile= prevValley[row][col];
 
                 if(tile==wall)
                 {
-                    state[row][col]=tile;
+                    thisValley[row][col]=tile;
                 }
                 else
                 {
                     if(tile & up)
                     {
                         int nextRow = (row==topRow) ? bottomRow : (row-1);
-                        state[nextRow][col] |= up;
+                        thisValley[nextRow][col] |= up;
                     }
 
                     if(tile & down)
                     {
                         int nextRow = (row==bottomRow) ? topRow : (row+1);
-                        state[nextRow][col] |= down;
+                        thisValley[nextRow][col] |= down;
                     }
 
                     if(tile & left)
                     {
                         int nextCol = (col==leftCol) ? rightCol : (col-1);
-                        state[row][nextCol] |= left;
+                        thisValley[row][nextCol] |= left;
                     }
 
                     if(tile & right)
                     {
                         int nextCol = (col==rightCol) ? leftCol : (col+1);
-                        state[row][nextCol] |= right;
+                        thisValley[row][nextCol] |= right;
                     }
                 }
             }
-    
-            //printBlizzardState(state);
         }
     }
 
-    return blizzardStates;
+    return valleys;
 }
-
-
 
 
 
@@ -213,10 +131,25 @@ try
     auto console = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleOutputCP(CP_UTF8);
 
+    auto valleys = calcValleys();
 
-    auto blizzardStates = calcBlizzardStates();
+    int const width  = valleys[0].width;
+    int const height = valleys[0].height;
 
-    printBlizzardStates(blizzardStates);
+    Pos const start{0,1};
+    Pos const end  {height-1,width-2};
+
+
+    stopwatch   stopwatch;
+
+    int part1 = stepsThroughValley(valleys,start,end,0);
+
+    print("Part 1 : {} \n",part1,stopwatch.milliseconds());
+
+    int part2a = stepsThroughValley(valleys, end, start, part1);
+    int part2b = stepsThroughValley(valleys, start, end, part1+part2a);
+
+    print("Part 2 : {}+{}+{} = {}    in {} ms\n",part1,part2a,part2b, part1+part2a+part2b,  stopwatch.milliseconds());
 
 }
 catch(std::exception const &e)

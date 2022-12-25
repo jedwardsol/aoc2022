@@ -3,6 +3,7 @@
 #include "include/thrower.h"
 #include "include/getdata.h"
 #include "include/stopwatch.h"
+#include "include/int.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -17,7 +18,7 @@
 
 int calcIncrement_loop(std::string_view marker)
 {
-    auto const size=static_cast<int>(marker.size());
+    auto const size=isize(marker);
 
     for(int first=size-2; first>=0; first--)
     {
@@ -42,7 +43,7 @@ int calcIncrement_set(std::string_view marker)
 {
     std::unordered_set<char> seen;
 
-    auto const size=static_cast<int>(marker.size());
+    auto const size=isize(marker);
 
     for(int i=size-1; i>=0; i--)
     {

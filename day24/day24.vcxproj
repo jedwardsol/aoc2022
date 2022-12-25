@@ -151,6 +151,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="day24.cpp" />
+    <ClCompile Include="print.cpp" />
+    <ClCompile Include="search.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="day24.txt">
@@ -159,6 +161,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="day24.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
