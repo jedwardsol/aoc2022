@@ -48,7 +48,5 @@ Day 23 : Elves moving to find space
 
 Day 24 : Walking between blizzards
 
-Day 25 : 
-
-
+Day 25 : Balanced quinary
 
